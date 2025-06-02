@@ -7,6 +7,11 @@
 import UIKit
 
 final class TrackersViewController: UIViewController {
+    // MARK: - Properties
+    var categories: [TrackerCategory] = []
+    var completedTrackers: [TrackerRecord] = []
+    
+    
     private let emptyImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "nothing")
@@ -24,6 +29,7 @@ final class TrackersViewController: UIViewController {
         return label
     }()
     
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -31,6 +37,7 @@ final class TrackersViewController: UIViewController {
         setupEmptyPlaceholder()
     }
     
+    // MARK: - Setup UI
     private func setupNavigationBar() {
         title = "Трекеры"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -46,6 +53,7 @@ final class TrackersViewController: UIViewController {
         
     }
     
+    // MARK: - Actions
     @objc private func didTapAdd() {
         // потом реализуем
     }
@@ -61,6 +69,6 @@ final class TrackersViewController: UIViewController {
             emptyLabel.topAnchor.constraint(equalTo: emptyImageView.bottomAnchor, constant: 8)
         ])
         
-       
+        
     }
 }
