@@ -18,7 +18,7 @@ final class SplashViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "Blue")
+        view.backgroundColor = .ypBlue
         setupLayout()
         }
     
