@@ -6,7 +6,7 @@
 //
 import Foundation
 
-struct TrackerRecord {
+struct TrackerRecord: Equatable {
     let trackerId: UUID
     let date: Date
 }

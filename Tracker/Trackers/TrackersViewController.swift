@@ -11,6 +11,8 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     // MARK: - Properties
     var categories: [TrackerCategory] = []
     var completedTrackers: [TrackerRecord] = []
+    var selectedDate: Date = Date()
+    private let searchController = UISearchController(searchResultsController: nil)
     
     // тестируем временно трекеры
     var trackerCategoryStore = TrackerCategoryStore()
@@ -42,7 +44,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 16
         layout.minimumInteritemSpacing = 9
-        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         return layout
     }()
     
@@ -53,7 +55,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: "TrackerCell") // потом заменим на кастомную ячейку
+        collectionView.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: "TrackerCell")
         collectionView.register(
             TrackerSectionHeaderView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
@@ -65,8 +67,8 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         trackerCategoryStore.add(trackerTest1, toCategoryWithTitle: "Радостные мелочи")
         trackerCategoryStore.add(trackerTest2, toCategoryWithTitle: "Важные дела")
         
-        trackerCategoryStore.add(trackerTest3, toCategoryWithTitle: "Радостные мелочи")
-        trackerCategoryStore.add(trackerTest4, toCategoryWithTitle: "Радостные мелочи")
+        trackerCategoryStore.add(trackerTest3, toCategoryWithTitle: "Важные дела")
+        trackerCategoryStore.add(trackerTest4, toCategoryWithTitle: "Важные дела")
         
         categories = trackerCategoryStore.categories
         collectionView.reloadData()
@@ -79,6 +81,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         
+        setupSearchController()
         setupNavigationBar()
        // setupEmptyPlaceholder()  сделаем потом метод для проверки, есть ли трекеры
     }
@@ -105,14 +108,23 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
     }
     
+    private func setupSearchController() {
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Поиск"
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
+    }
+    
     // MARK: - Actions
     @objc private func didTapAdd() {
         // потом реализуем
     }
     
     @objc private func dateChanged(_ sender: UIDatePicker) {
-        let selectedDate = sender.date
-        // Здесь должен быть вызов фильтрации трекеров по дню недели
+        selectedDate = sender.date
+        collectionView.reloadData()
     }
     
     private func setupEmptyPlaceholder() {
@@ -162,22 +174,37 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        // Получаем трекер из текущей категории и позиции
         let tracker = categories[indexPath.section].trackers[indexPath.item]
 
-        // Получаем ячейку и кастуем к нужному типу
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TrackerCell", for: indexPath) as? TrackerCollectionViewCell else {
             return UICollectionViewCell()
         }
 
-        // Настраиваем внешний вид ячейки
         cell.emojiLabel.text = tracker.emoji
         cell.titleLabel.text = tracker.title
-        cell.backgroundColor = .clear // чтобы фон не перекрывал закруглённую карту
+        cell.backgroundColor = .clear
         cell.cardView.backgroundColor = tracker.color
+        cell.plusButton.backgroundColor = tracker.color
 
-        // Счётчик дней — пока просто 0 дней, позже будет логика подсчёта
-        cell.daysLabel.text = "0 дней"
+        let record = TrackerRecord(trackerId: tracker.id, date: selectedDate)
+        let isCompleted = completedTrackers.contains(where: { $0 == record })
+
+        cell.daysLabel.text = "\(completedTrackers.filter { $0.trackerId == tracker.id }.count) дней"
+        let imageName = isCompleted ? "done" : "plus"
+        cell.plusButton.setImage(UIImage(named: imageName), for: .normal)
+
+        cell.plusButtonAction = { [weak self] in
+            guard let self else { return }
+            guard self.selectedDate <= Date() else {
+                return
+            }
+            if isCompleted {
+                completedTrackers.removeAll(where: { $0 == record })
+            } else {
+                completedTrackers.append(record)
+            }
+            collectionView.reloadData()
+        }
 
         return cell
     }
@@ -198,6 +225,13 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.bounds.width, height: 40)
+        return CGSize(width: collectionView.bounds.width, height: 46)
+    }
+}
+
+extension TrackersViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        let searchText = searchController.searchBar.text ?? ""
+        // Здесь ты сможешь фильтровать трекеры по searchText
     }
 }
