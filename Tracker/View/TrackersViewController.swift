@@ -83,6 +83,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         
         setupSearchController()
         setupNavigationBar()
+        
         // setupEmptyPlaceholder()  сделаем потом метод для проверки, есть ли трекеры
     }
     
@@ -120,6 +121,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     // MARK: - Actions
     @objc private func didTapAdd() {
         let trackerTypeVC = TrackerTypeSelectionViewController()
+        trackerTypeVC.delegate = self
         let nav = UINavigationController(rootViewController: trackerTypeVC)
         nav.modalPresentationStyle = .pageSheet // пока используем это
         present(nav, animated: true)
@@ -238,3 +240,10 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         }
     }
 
+extension TrackersViewController: TrackerCreationDelegate {
+    func trackerWasCreated(_ tracker: Tracker) {
+        trackerCategoryStore.add(tracker, toCategoryWithTitle: "Радостные мелочи")
+        categories = trackerCategoryStore.categories
+        collectionView.reloadData()
+    }
+}

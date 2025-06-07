@@ -7,6 +7,7 @@
 import UIKit
 
 final class TrackerTypeSelectionViewController: UIViewController {
+    weak var delegate: TrackerCreationDelegate?
     private lazy var habitButton: UIButton = {
         let button = UIButton()
         button.setTitle("Привычка", for: .normal)
@@ -62,11 +63,16 @@ final class TrackerTypeSelectionViewController: UIViewController {
 
     @objc private func didTapHabit() {
         let newHabitVC = NewHabitViewController()
-        navigationController?.pushViewController(newHabitVC, animated: true)
+        newHabitVC.delegate = delegate
+        let navVC = UINavigationController(rootViewController: newHabitVC)
+        navVC.modalPresentationStyle = .automatic
+        present(navVC, animated: true)
     }
 
     @objc private func didTapIrregular() {
-       let newIrregularVC = NewIrregularViewController()
-        navigationController?.pushViewController(newIrregularVC, animated: true)
+        let newIrregularVC = NewIrregularViewController()
+        let navVC = UINavigationController(rootViewController: newIrregularVC)
+        navVC.modalPresentationStyle = .automatic
+        present(navVC, animated: true)
     }
 }

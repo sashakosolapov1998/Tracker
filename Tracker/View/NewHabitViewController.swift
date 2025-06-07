@@ -8,7 +8,54 @@
 import UIKit
 import Foundation
 
-final class NewHabitViewController: UIViewController {
+// MARK: - NewHabitViewController
+final class NewHabitViewController: UIViewController, ScheduleViewControllerDelegate {
+    
+    // MARK: - Properties
+    @objc private func cancelButtonTapped() {
+        dismiss(animated: true, completion: nil)
+    }
+    @objc private func saveButtonTapped() {
+        guard let title = trackerNameTextField.text, !title.isEmpty, !selectedDays.isEmpty else { return }
+
+        let newTracker = Tracker(
+            id: UUID(),
+            title: title,
+            color: .blue, // потом заменим на выбранный
+            emoji: "🙂", // потом заменим на выбранный
+            schedule: selectedDays // переменная, которую ты будешь заполнять при выборе расписания
+        )
+
+        delegate?.trackerWasCreated(newTracker)
+        dismiss(animated: true, completion: nil)
+    }
+    
+    weak var delegate: TrackerCreationDelegate?
+    private var selectedDays: Set<Tracker.Weekday> = []
+    
+    private let cancelButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Отменить", for: .normal)
+        button.setTitleColor(.ypBlue, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17)
+        button.layer.cornerRadius = 16
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.ypRed.cgColor
+        button.setTitleColor(.ypRed, for: .normal)
+        button.backgroundColor = .clear
+        return button
+    }()
+    
+    private let saveButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Создать", for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.backgroundColor = .ypBlack
+        button.layer.cornerRadius = 16
+        return button
+    }()
+    
     private let scrollView = UIScrollView()
     private let contentStackView: UIStackView = {
         let stack = UIStackView()
@@ -25,11 +72,11 @@ final class NewHabitViewController: UIViewController {
         textField.font = .systemFont(ofSize: 17)
         textField.placeholder = "Введите название трекера"
         textField.textAlignment = .left
-       
+        
         textField.backgroundColor = .ypBackground
         textField.layer.cornerRadius = 16
         textField.layer.masksToBounds = true
-       
+        
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
         textField.leftView = paddingView
         textField.leftViewMode = .always
@@ -37,6 +84,26 @@ final class NewHabitViewController: UIViewController {
         
         return textField
     }()
+    
+    private let tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .grouped)
+        tableView.register(OptionCell.self, forCellReuseIdentifier: "OptionCell")
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.layer.cornerRadius = 16
+        tableView.layer.masksToBounds = true
+        tableView.backgroundColor = .ypBackground
+        tableView.separatorStyle = .none
+        tableView.isScrollEnabled = false
+        return tableView
+    }()
+    private let buttonStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.spacing = 8
+        stack.distribution = .fillEqually
+        return stack
+    }()
+    
     
     
     //MARK: - LifeCycle
@@ -46,8 +113,17 @@ final class NewHabitViewController: UIViewController {
         setupTitleNavBar()
         setupLayout()
         setupConstraints()
+        tableView.delegate = self
+        tableView.dataSource = self
+        setupButtons()
     }
     
+    
+    // MARK: - Setup
+    private func setupButtons() {
+        cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
+        saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
+    }
     private func setupLayout() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -61,15 +137,13 @@ final class NewHabitViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            contentStackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentStackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 24),
             contentStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
             contentStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16),
             contentStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentStackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32)
         ])
     }
-    
-    
     
     private func setupTitleNavBar() {
         let titleLabel = UILabel()
@@ -79,15 +153,116 @@ final class NewHabitViewController: UIViewController {
         navigationItem.titleView = titleLabel
     }
     
-    
-    
     private func setupConstraints() {
         contentStackView.addArrangedSubview(trackerNameTextField)
         trackerNameTextField.heightAnchor.constraint(equalToConstant: 75).isActive = true
+        contentStackView.addArrangedSubview(tableView)
+        tableView.heightAnchor.constraint(equalToConstant: 150).isActive = true
+        let placeholderView = UIView()
+        placeholderView.translatesAutoresizingMaskIntoConstraints = false
+        contentStackView.addArrangedSubview(placeholderView)
+        placeholderView.heightAnchor.constraint(equalToConstant: 290).isActive = true
+        buttonStack.addArrangedSubview(cancelButton)
+        buttonStack.addArrangedSubview(saveButton)
+        contentStackView.addArrangedSubview(buttonStack)
+        buttonStack.heightAnchor.constraint(equalToConstant: 60).isActive = true
     }
     
+    func scheduleViewController(_ viewController: ScheduleViewController, didSelectWeekdays weekdays: Set<Tracker.Weekday>) {
+        self.selectedDays = weekdays
+    }
+}
+
+// MARK: - Extension
+extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
     
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 2
+    }
     
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "OptionCell", for: indexPath) as! OptionCell
+        cell.textLabel?.text = indexPath.row == 0 ? "Категория" : "Расписание"
+        cell.showDivider(indexPath.row == 0)
+        return cell
+    }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 75
+    }
     
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 0.01
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return UIView()
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        if indexPath.row == 1 {
+            let ScheduleVC = ScheduleViewController()
+            let navController = UINavigationController(rootViewController: ScheduleVC)
+            ScheduleVC.delegate = self
+            present(navController, animated: true, completion: nil)
+        }
+    }
+}
+
+
+
+
+final class OptionCell: UITableViewCell {
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupAppearance()
+    }
+    private let divider: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(named: "YP Separator") ?? .lightGray
+        return view
+    }()
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupAppearance()
+    }
+
+    private func setupAppearance() {
+        backgroundColor = .clear
+        contentView.backgroundColor = .clear
+        layer.cornerRadius = 16
+        layer.masksToBounds = true
+        textLabel?.font = UIFont.systemFont(ofSize: 17)
+        accessoryType = .disclosureIndicator
+        textLabel?.textAlignment = .left
+        textLabel?.numberOfLines = 1
+        textLabel?.baselineAdjustment = .alignCenters
+        contentView.addSubview(divider)
+
+        NSLayoutConstraint.activate([
+            divider.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            divider.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            divider.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            divider.heightAnchor.constraint(equalToConstant: 0.5)
+        ])
+
+        divider.isHidden = true // по умолчанию скрыт
+    }
+    
+    func showDivider(_ show: Bool) {
+        divider.isHidden = !show
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        textLabel?.text = nil
+        divider.isHidden = true
+    }
 }
