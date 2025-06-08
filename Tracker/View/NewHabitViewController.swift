@@ -51,7 +51,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         button.setTitle("Создать", for: .normal)
         button.setTitleColor(.ypWhite, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = .ypBlack
+        button.backgroundColor = .ypGray
         button.layer.cornerRadius = 16
         return button
     }()
@@ -116,6 +116,8 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         tableView.delegate = self
         tableView.dataSource = self
         setupButtons()
+        trackerNameTextField.delegate = self
+        trackerNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
     }
     
     
@@ -171,6 +173,20 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     
     func scheduleViewController(_ viewController: ScheduleViewController, didSelectWeekdays weekdays: Set<Tracker.Weekday>) {
         self.selectedDays = weekdays
+        updateSaveButtonState()
+    }
+
+    @objc private func textFieldDidChange() {
+        updateSaveButtonState()
+    }
+
+    private func updateSaveButtonState() {
+        let isTitleEmpty = trackerNameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
+        let isDaysEmpty = selectedDays.isEmpty
+
+        let shouldEnable = !isTitleEmpty && !isDaysEmpty
+        saveButton.isEnabled = shouldEnable
+        saveButton.backgroundColor = shouldEnable ? .ypBlack : .ypGray
     }
 }
 
@@ -214,10 +230,6 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
         }
     }
 }
-
-
-
-
 final class OptionCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -265,5 +277,14 @@ final class OptionCell: UITableViewCell {
         super.prepareForReuse()
         textLabel?.text = nil
         divider.isHidden = true
+    }
+}
+
+
+// MARK: - UITextFieldDelegate
+extension NewHabitViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
