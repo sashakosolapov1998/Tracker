@@ -7,6 +7,7 @@
 import UIKit
 
 final class TrackerTypeSelectionViewController: UIViewController {
+    // MARK: - Properties
     weak var delegate: TrackerCreationDelegate?
     private lazy var habitButton: UIButton = {
         let button = UIButton()
@@ -28,21 +29,15 @@ final class TrackerTypeSelectionViewController: UIViewController {
         return button
     }()
 
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         setupLayout()
-        setupTitleNavBar()
+        navigationItem.title = "Создание трекера"
     }
 
-    private func setupTitleNavBar() {
-        let titleLabel = UILabel()
-        titleLabel.text = "Создание трекера"
-        titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        titleLabel.textColor = .ypBlack
-        navigationItem.titleView = titleLabel
-    }
-    
+    // MARK: - Layout
     private func setupLayout() {
         let buttonStack = UIStackView(arrangedSubviews: [habitButton, irregularButton])
         buttonStack.axis = .vertical
@@ -61,18 +56,21 @@ final class TrackerTypeSelectionViewController: UIViewController {
         ])
     }
 
-    @objc private func didTapHabit() {
-        let newHabitVC = NewHabitViewController()
-        newHabitVC.delegate = delegate
-        let navVC = UINavigationController(rootViewController: newHabitVC)
+    private func presentInNavigation(_ viewController: UIViewController) {
+        let navVC = UINavigationController(rootViewController: viewController)
         navVC.modalPresentationStyle = .automatic
         present(navVC, animated: true)
     }
 
+    // MARK: - Actions
+    @objc private func didTapHabit() {
+        let newHabitVC = NewHabitViewController()
+        newHabitVC.delegate = delegate
+        presentInNavigation(newHabitVC)
+    }
+
     @objc private func didTapIrregular() {
         let newIrregularVC = NewIrregularViewController()
-        let navVC = UINavigationController(rootViewController: newIrregularVC)
-        navVC.modalPresentationStyle = .automatic
-        present(navVC, animated: true)
+        presentInNavigation(newIrregularVC)
     }
 }

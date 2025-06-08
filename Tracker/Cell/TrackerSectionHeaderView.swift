@@ -4,9 +4,6 @@
 //
 //  Created by Александр Косолапов on 4/6/25.
 //
-
-
-
 import UIKit
 
 final class TrackerSectionHeaderView: UICollectionReusableView {
@@ -29,8 +26,6 @@ final class TrackerSectionHeaderView: UICollectionReusableView {
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 28),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -28),
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
-          //  titleLabel.heightAnchor.constraint(equalToConstant: 18),
-           // titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12)
         ])
     }
 

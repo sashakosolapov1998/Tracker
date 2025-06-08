@@ -15,12 +15,15 @@ protocol ScheduleViewControllerDelegate: AnyObject {
 // MARK: - ScheduleViewController
 final class ScheduleViewController: UIViewController {
     
+    private let reuseIdentifier = "ScheduleOptionCell"
+    private let rowHeight: CGFloat = 75
+    
     weak var delegate: ScheduleViewControllerDelegate?
     private var selectedWeekdays: Set<Tracker.Weekday> = []
     
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.register(OptionCell.self, forCellReuseIdentifier: "CategoryCell")
+        tableView.register(OptionCell.self, forCellReuseIdentifier: "ScheduleOptionCell")
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
@@ -54,19 +57,14 @@ final class ScheduleViewController: UIViewController {
 
     }
     
-   
+    //MARK: - Setup
     private func setupTitleNavBar() {
-        let titleLabel = UILabel()
-        titleLabel.text = "Расписание"
-        titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        titleLabel.textColor = .ypBlack
-        navigationItem.titleView = titleLabel
+        navigationItem.title = "Расписание"
     }
 
-    
     private func setupConstraints() {
         // Add fixed height constraint for tableView (7 rows * 75pt)
-        tableView.heightAnchor.constraint(equalToConstant: 75 * 7).isActive = true
+        tableView.heightAnchor.constraint(equalToConstant: rowHeight * CGFloat(Tracker.Weekday.allCases.count)).isActive = true
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -88,6 +86,7 @@ final class ScheduleViewController: UIViewController {
 
 // MARK: - Extension
 extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
+    // MARK: - UITableViewDataSource
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -98,8 +97,9 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath) as! OptionCell
-       cell.textLabel?.text = Tracker.Weekday.allCases[indexPath.row].localizedName
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! OptionCell
+        let weekday = Tracker.Weekday.allCases[indexPath.row]
+        cell.textLabel?.text = weekday.localizedName
         cell.textLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         cell.showDivider(indexPath.row != Tracker.Weekday.allCases.count - 1)
         let switchView = UISwitch()
@@ -120,9 +120,9 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
         }
     }
     
-    
+    // MARK: - UITableViewDelegate
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 75
+        return rowHeight
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -132,5 +132,4 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return UIView()
     }
-    
 }

@@ -7,11 +7,22 @@
 import UIKit
 import Foundation
 
+// MARK: - TrackerCollectionViewCell
 final class TrackerCollectionViewCell: UICollectionViewCell {
     
+    private enum Constants {
+        static let cornerRadius: CGFloat = 16
+        static let emojiSize: CGFloat = 24
+        static let cardHeight: CGFloat = 90
+        static let buttonSize: CGFloat = 34
+        static let buttonCornerRadius: CGFloat = 17
+        static let inset: CGFloat = 12
+    }
+    
+    // MARK: - UI Elements
     let cardView: UIView = {
         let view = UIView()
-        view.layer.cornerRadius = 16
+        view.layer.cornerRadius = Constants.cornerRadius
         view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -29,6 +40,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13)
         label.textAlignment = .center
+        label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -38,6 +50,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .white
         label.numberOfLines = 2
+        label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -54,16 +67,19 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "plus"), for: .normal)
         button.tintColor = .ypWhite
-        button.layer.cornerRadius = 17
+        button.layer.cornerRadius = Constants.buttonCornerRadius
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     var plusButtonAction: (() -> Void)?
+    
+    // MARK: - Actions
     @objc private func didTapPlus() {
         plusButtonAction?()
     }
     
+    // MARK: - Lifecycle
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -80,28 +96,27 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             cardView.topAnchor.constraint(equalTo: contentView.topAnchor),
             cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            cardView.heightAnchor.constraint(equalToConstant: 90),
+            cardView.heightAnchor.constraint(equalToConstant: Constants.cardHeight),
             
-            emojiBackgroundView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
-            emojiBackgroundView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
-            emojiBackgroundView.widthAnchor.constraint(equalToConstant: 24),
-            emojiBackgroundView.heightAnchor.constraint(equalToConstant: 24),
+            emojiBackgroundView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: Constants.inset),
+            emojiBackgroundView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: Constants.inset),
+            emojiBackgroundView.widthAnchor.constraint(equalToConstant: Constants.emojiSize),
+            emojiBackgroundView.heightAnchor.constraint(equalToConstant: Constants.emojiSize),
             
             emojiLabel.centerXAnchor.constraint(equalTo: emojiBackgroundView.centerXAnchor),
             emojiLabel.centerYAnchor.constraint(equalTo: emojiBackgroundView.centerYAnchor),
 
-            
-            titleLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
-            titleLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -12),
-            titleLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -12),
+            titleLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: Constants.inset),
+            titleLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -Constants.inset),
+            titleLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -Constants.inset),
             
             daysLabel.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 16),
-            daysLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            daysLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.inset),
             
             plusButton.centerYAnchor.constraint(equalTo: daysLabel.centerYAnchor),
-            plusButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            plusButton.widthAnchor.constraint(equalToConstant: 34),
-            plusButton.heightAnchor.constraint(equalToConstant: 34)
+            plusButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.inset),
+            plusButton.widthAnchor.constraint(equalToConstant: Constants.buttonSize),
+            plusButton.heightAnchor.constraint(equalToConstant: Constants.buttonSize)
         ])
     }
     

@@ -11,6 +11,13 @@ import Foundation
 // MARK: - NewHabitViewController
 final class NewHabitViewController: UIViewController, ScheduleViewControllerDelegate {
     
+    private let reuseIdentifier = "OptionCell"
+    private let rowHeight: CGFloat = 75
+    private let tableHeight: CGFloat = 150
+    private let buttonHeight: CGFloat = 60
+    private let stackBottomPadding: CGFloat = 90
+    private let stackSpacing: CGFloat = 24
+    
     // MARK: - Properties
     @objc private func cancelButtonTapped() {
         dismiss(animated: true, completion: nil)
@@ -21,11 +28,11 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         let newTracker = Tracker(
             id: UUID(),
             title: title,
-            color: .blue, // потом заменим на выбранный
-            emoji: "🙂", // потом заменим на выбранный
-            schedule: selectedDays // переменная, которую ты будешь заполнять при выборе расписания
+            color: .blue, // тест
+            emoji: "🙂", // тест
+            schedule: selectedDays // тест
         )
-
+        
         delegate?.trackerWasCreated(newTracker)
         dismiss(animated: true, completion: nil)
     }
@@ -104,8 +111,6 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         return stack
     }()
     
-    
-    
     //MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -120,7 +125,6 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         trackerNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
     }
     
-    
     // MARK: - Setup
     private func setupButtons() {
         cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
@@ -129,6 +133,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     private func setupLayout() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentStackView.translatesAutoresizingMaskIntoConstraints = false
+        contentStackView.spacing = stackSpacing
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentStackView)
@@ -144,13 +149,13 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
             contentStackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 24),
             contentStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
             contentStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16),
-            contentStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -90),
+            contentStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -stackBottomPadding),
             contentStackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32),
             
             buttonStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             buttonStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             buttonStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            buttonStack.heightAnchor.constraint(equalToConstant: 60)
+            buttonStack.heightAnchor.constraint(equalToConstant: buttonHeight)
         ])
     }
     
@@ -164,9 +169,9 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     
     private func setupConstraints() {
         contentStackView.addArrangedSubview(trackerNameTextField)
-        trackerNameTextField.heightAnchor.constraint(equalToConstant: 75).isActive = true
+        trackerNameTextField.heightAnchor.constraint(equalToConstant: rowHeight).isActive = true
         contentStackView.addArrangedSubview(tableView)
-        tableView.heightAnchor.constraint(equalToConstant: 150).isActive = true
+        tableView.heightAnchor.constraint(equalToConstant: tableHeight).isActive = true
         buttonStack.addArrangedSubview(cancelButton)
         buttonStack.addArrangedSubview(saveButton)
     }
@@ -192,6 +197,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
 
 // MARK: - Extension
 extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
+    // MARK: - UITableViewDataSource
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -201,14 +207,15 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "OptionCell", for: indexPath) as! OptionCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! OptionCell
         cell.textLabel?.text = indexPath.row == 0 ? "Категория" : "Расписание"
         cell.showDivider(indexPath.row == 0)
         return cell
     }
     
+    // MARK: - UITableViewDelegate
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 75
+        return rowHeight
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -227,6 +234,8 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
             let navController = UINavigationController(rootViewController: ScheduleVC)
             ScheduleVC.delegate = self
             present(navController, animated: true, completion: nil)
+        } else {
+            // TODO: Реализовать выбор категории
         }
     }
 }
@@ -266,7 +275,7 @@ final class OptionCell: UITableViewCell {
             divider.heightAnchor.constraint(equalToConstant: 0.5)
         ])
 
-        divider.isHidden = true // по умолчанию скрыт
+        divider.isHidden = true
     }
     
     func showDivider(_ show: Bool) {
@@ -279,7 +288,6 @@ final class OptionCell: UITableViewCell {
         divider.isHidden = true
     }
 }
-
 
 // MARK: - UITextFieldDelegate
 extension NewHabitViewController: UITextFieldDelegate {

@@ -14,14 +14,8 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     var selectedDate: Date = Date()
     private let searchController = UISearchController(searchResultsController: nil)
     
-    
     var trackerCategoryStore = TrackerCategoryStore()
-    /* тестируем временно трекеры
-    let trackerTest1 = Tracker (id: UUID(), title:"Прогулка на свежем воздухе", color: .colorSelection1, emoji: "🚶", schedule: [.monday, .wednesday, .friday])
-    let trackerTest2 = Tracker (id: UUID(), title:"Позвонить бубушке", color: .colorSelection5, emoji: "💁🏻", schedule: [.saturday, .friday])
-    let trackerTest3 = Tracker (id: UUID(), title:"Хуйня какая то", color: .colorSelection7, emoji: "🙈", schedule: [.saturday, .friday])
-    let trackerTest4 = Tracker (id: UUID(), title:"Проверяем это все на работу", color: .colorSelection2, emoji: "❤️", schedule: [.saturday, .friday])
-    */
+    private var visibleCategories: [TrackerCategory] = []
     
     private let emptyImageView: UIImageView = {
         let imageView = UIImageView()
@@ -63,19 +57,10 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
             withReuseIdentifier: TrackerSectionHeaderView.reuseIdentifier
         )
         
-        
-        /* тест
-        trackerCategoryStore.add(trackerTest1, toCategoryWithTitle: "Радостные мелочи")
-        trackerCategoryStore.add(trackerTest2, toCategoryWithTitle: "Важные дела")
-        
-        trackerCategoryStore.add(trackerTest3, toCategoryWithTitle: "Важные дела")
-        trackerCategoryStore.add(trackerTest4, toCategoryWithTitle: "Важные дела")
-        */
-        
+        updateVisibleCategories()
         categories = trackerCategoryStore.categories
         collectionView.reloadData()
         updatePlaceholderVisibility()
-        
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -86,7 +71,6 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         
         setupSearchController()
         setupNavigationBar()
-        
         setupEmptyPlaceholder()
     }
     
@@ -135,6 +119,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     
     @objc private func dateChanged(_ sender: UIDatePicker) {
         selectedDate = sender.date
+        updateVisibleCategories()
         collectionView.reloadData()
         updatePlaceholderVisibility()
     }
@@ -151,25 +136,23 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         ])
     }
     
-    //MARK: - Func
+    // MARK: - Placeholder Handling
     private func updatePlaceholderVisibility() {
-        let isEmpty = visibleTrackers().isEmpty
+        let isEmpty = visibleCategories.isEmpty
         emptyImageView.isHidden = !isEmpty
         emptyLabel.isHidden = !isEmpty
     }
     
-    private func visibleTrackers() -> [TrackerCategory] {
+    private func updateVisibleCategories() {
         let calendar = Calendar.current
         let calendarWeekday = calendar.component(.weekday, from: selectedDate)
         let mappedRawValue = calendarWeekday == 1 ? 7 : calendarWeekday - 1
-        
         let weekday = Tracker.Weekday(rawValue: mappedRawValue) ?? .monday
-        let filteredCategories = trackerCategoryStore.categories.map { category in
+        
+        visibleCategories = trackerCategoryStore.categories.map { category in
             let trackers = category.trackers.filter { $0.schedule.contains(weekday) }
             return TrackerCategory(title: category.title, trackers: trackers)
         }.filter { !$0.trackers.isEmpty }
-
-        return filteredCategories
     }
     
     //MARK: - UICollectionView
@@ -182,13 +165,15 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     
     // MARK: - UICollectionViewDataSource
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return visibleTrackers().count
+        return visibleCategories.count
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard kind == UICollectionView.elementKindSectionHeader else {
             return UICollectionReusableView()
         }
+        
+        guard indexPath.section < visibleCategories.count else { return UICollectionReusableView() }
         
         guard let header = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind,
@@ -198,16 +183,16 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
             return UICollectionReusableView()
         }
         
-        header.titleLabel.text = visibleTrackers()[indexPath.section].title
+        header.titleLabel.text = visibleCategories[indexPath.section].title
         return header
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return visibleTrackers()[section].trackers.count
+        return visibleCategories[section].trackers.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let tracker = visibleTrackers()[indexPath.section].trackers[indexPath.item]
+        let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
         
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TrackerCell", for: indexPath) as? TrackerCollectionViewCell else {
             return UICollectionViewCell()
@@ -241,32 +226,32 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         
         return cell
     }
-    
 }
 
-    extension TrackersViewController: UICollectionViewDelegateFlowLayout {
-        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-            // тут твой расчёт
-            let insets = collectionViewFlowLayout.sectionInset
-            let spacing = collectionViewFlowLayout.minimumInteritemSpacing
-            let availableWidth = collectionView.bounds.width - insets.left - insets.right - spacing
-            let itemWidth = floor(availableWidth / 2)
-            let itemHeight: CGFloat = 148
-            
-            return CGSize(width: itemWidth, height: itemHeight)
-        }
+// MARK: - Extension
+extension TrackersViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-            return CGSize(width: collectionView.bounds.width, height: 46)
-        }
+        let insets = collectionViewFlowLayout.sectionInset
+        let spacing = collectionViewFlowLayout.minimumInteritemSpacing
+        let availableWidth = collectionView.bounds.width - insets.left - insets.right - spacing
+        let itemWidth = floor(availableWidth / 2)
+        let itemHeight: CGFloat = 148
+        
+        return CGSize(width: itemWidth, height: itemHeight)
     }
     
-    extension TrackersViewController: UISearchResultsUpdating {
-        func updateSearchResults(for searchController: UISearchController) {
-            let searchText = searchController.searchBar.text ?? ""
-            // Здесь ты сможешь фильтровать трекеры по searchText
-        }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: collectionView.bounds.width, height: 46)
     }
+}
+
+extension TrackersViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        let searchText = searchController.searchBar.text ?? ""
+        // Реализуем фильрацию позже
+    }
+}
 
 extension TrackersViewController: TrackerCreationDelegate {
     func trackerWasCreated(_ tracker: Tracker) {
@@ -275,5 +260,4 @@ extension TrackersViewController: TrackerCreationDelegate {
         collectionView.reloadData()
         updatePlaceholderVisibility()
     }
-    
 }

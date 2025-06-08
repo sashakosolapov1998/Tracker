@@ -7,5 +7,5 @@
 import UIKit
 
 final class NewIrregularViewController: UIViewController {
-        // ...
+        // реализуем позже
 }

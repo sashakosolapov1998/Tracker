@@ -7,7 +7,9 @@
 import UIKit
 import Foundation
 
+// MARK: - MainTabBarController
 final class MainTabBarController: UITabBarController {
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -15,6 +17,7 @@ final class MainTabBarController: UITabBarController {
         setupTabs()
     }
    
+    // MARK: - Private Methods
     private func setupAppearance() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -36,13 +39,13 @@ final class MainTabBarController: UITabBarController {
             selectedImage: nil
         )
         
-        let statisticsVS = StatisticsViewController()
-        statisticsVS.tabBarItem = UITabBarItem(
+        let statisticsVC = StatisticsViewController()
+        statisticsVC.tabBarItem = UITabBarItem(
             title: "Статистика",
             image: UIImage(named: "stats"),
             selectedImage: nil
         )
         
-        viewControllers = [navTrackers, statisticsVS]
+        viewControllers = [navTrackers, statisticsVC]
     }
 }
