@@ -14,13 +14,14 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     var selectedDate: Date = Date()
     private let searchController = UISearchController(searchResultsController: nil)
     
-    // тестируем временно трекеры
+    
     var trackerCategoryStore = TrackerCategoryStore()
+    /* тестируем временно трекеры
     let trackerTest1 = Tracker (id: UUID(), title:"Прогулка на свежем воздухе", color: .colorSelection1, emoji: "🚶", schedule: [.monday, .wednesday, .friday])
     let trackerTest2 = Tracker (id: UUID(), title:"Позвонить бубушке", color: .colorSelection5, emoji: "💁🏻", schedule: [.saturday, .friday])
     let trackerTest3 = Tracker (id: UUID(), title:"Хуйня какая то", color: .colorSelection7, emoji: "🙈", schedule: [.saturday, .friday])
     let trackerTest4 = Tracker (id: UUID(), title:"Проверяем это все на работу", color: .colorSelection2, emoji: "❤️", schedule: [.saturday, .friday])
-    
+    */
     
     private let emptyImageView: UIImageView = {
         let imageView = UIImageView()
@@ -63,15 +64,17 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         )
         
         
-        // тест
+        /* тест
         trackerCategoryStore.add(trackerTest1, toCategoryWithTitle: "Радостные мелочи")
         trackerCategoryStore.add(trackerTest2, toCategoryWithTitle: "Важные дела")
         
         trackerCategoryStore.add(trackerTest3, toCategoryWithTitle: "Важные дела")
         trackerCategoryStore.add(trackerTest4, toCategoryWithTitle: "Важные дела")
+        */
         
         categories = trackerCategoryStore.categories
         collectionView.reloadData()
+        updatePlaceholderVisibility()
         
         
         NSLayoutConstraint.activate([
@@ -84,7 +87,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         setupSearchController()
         setupNavigationBar()
         
-        // setupEmptyPlaceholder()  сделаем потом метод для проверки, есть ли трекеры
+        setupEmptyPlaceholder()
     }
     
     // MARK: - Setup UI
@@ -95,6 +98,9 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         let datePicker = UIDatePicker()
         datePicker.preferredDatePickerStyle = .compact
         datePicker.datePickerMode = .date
+        datePicker.locale = Locale(identifier: "ru_RU")
+        datePicker.calendar = Calendar(identifier: .gregorian)
+        datePicker.timeZone = .current
         datePicker.addTarget(self, action: #selector(dateChanged(_:)), for: .valueChanged)
         
         let addButton = UIBarButtonItem(
@@ -130,6 +136,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     @objc private func dateChanged(_ sender: UIDatePicker) {
         selectedDate = sender.date
         collectionView.reloadData()
+        updatePlaceholderVisibility()
     }
     
     private func setupEmptyPlaceholder() {
@@ -145,10 +152,18 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     }
     
     //MARK: - Func
+    private func updatePlaceholderVisibility() {
+        let isEmpty = visibleTrackers().isEmpty
+        emptyImageView.isHidden = !isEmpty
+        emptyLabel.isHidden = !isEmpty
+    }
+    
     private func visibleTrackers() -> [TrackerCategory] {
         let calendar = Calendar.current
-        let weekday = Tracker.Weekday(rawValue: calendar.component(.weekday, from: selectedDate)) ?? .monday
-
+        let calendarWeekday = calendar.component(.weekday, from: selectedDate)
+        let mappedRawValue = calendarWeekday == 1 ? 7 : calendarWeekday - 1
+        
+        let weekday = Tracker.Weekday(rawValue: mappedRawValue) ?? .monday
         let filteredCategories = trackerCategoryStore.categories.map { category in
             let trackers = category.trackers.filter { $0.schedule.contains(weekday) }
             return TrackerCategory(title: category.title, trackers: trackers)
@@ -258,6 +273,7 @@ extension TrackersViewController: TrackerCreationDelegate {
         trackerCategoryStore.add(tracker, toCategoryWithTitle: "Радостные мелочи")
         categories = trackerCategoryStore.categories
         collectionView.reloadData()
+        updatePlaceholderVisibility()
     }
     
 }
