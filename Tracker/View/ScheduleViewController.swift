@@ -99,7 +99,7 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath) as! OptionCell
-       cell.textLabel?.text = String(describing: Tracker.Weekday.allCases[indexPath.row])
+       cell.textLabel?.text = Tracker.Weekday.allCases[indexPath.row].localizedName
         cell.textLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         cell.showDivider(indexPath.row != Tracker.Weekday.allCases.count - 1)
         let switchView = UISwitch()

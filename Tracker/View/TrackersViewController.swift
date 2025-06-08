@@ -246,4 +246,5 @@ extension TrackersViewController: TrackerCreationDelegate {
         categories = trackerCategoryStore.categories
         collectionView.reloadData()
     }
+    
 }

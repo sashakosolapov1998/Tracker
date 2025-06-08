@@ -130,18 +130,25 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentStackView)
+        view.addSubview(buttonStack)
+        buttonStack.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
+        
             contentStackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 24),
             contentStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
             contentStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16),
-            contentStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentStackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32)
+            contentStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -90),
+            contentStackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32),
+            
+            buttonStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            buttonStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            buttonStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            buttonStack.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
     
@@ -158,14 +165,8 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         trackerNameTextField.heightAnchor.constraint(equalToConstant: 75).isActive = true
         contentStackView.addArrangedSubview(tableView)
         tableView.heightAnchor.constraint(equalToConstant: 150).isActive = true
-        let placeholderView = UIView()
-        placeholderView.translatesAutoresizingMaskIntoConstraints = false
-        contentStackView.addArrangedSubview(placeholderView)
-        placeholderView.heightAnchor.constraint(equalToConstant: 290).isActive = true
         buttonStack.addArrangedSubview(cancelButton)
         buttonStack.addArrangedSubview(saveButton)
-        contentStackView.addArrangedSubview(buttonStack)
-        buttonStack.heightAnchor.constraint(equalToConstant: 60).isActive = true
     }
     
     func scheduleViewController(_ viewController: ScheduleViewController, didSelectWeekdays weekdays: Set<Tracker.Weekday>) {
