@@ -144,6 +144,19 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         ])
     }
     
+    //MARK: - Func
+    private func visibleTrackers() -> [TrackerCategory] {
+        let calendar = Calendar.current
+        let weekday = Tracker.Weekday(rawValue: calendar.component(.weekday, from: selectedDate)) ?? .monday
+
+        let filteredCategories = trackerCategoryStore.categories.map { category in
+            let trackers = category.trackers.filter { $0.schedule.contains(weekday) }
+            return TrackerCategory(title: category.title, trackers: trackers)
+        }.filter { !$0.trackers.isEmpty }
+
+        return filteredCategories
+    }
+    
     //MARK: - UICollectionView
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewFlowLayout)
@@ -154,7 +167,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     
     // MARK: - UICollectionViewDataSource
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return categories.count
+        return visibleTrackers().count
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -170,16 +183,16 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
             return UICollectionReusableView()
         }
         
-        header.titleLabel.text = categories[indexPath.section].title
+        header.titleLabel.text = visibleTrackers()[indexPath.section].title
         return header
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return categories[section].trackers.count
+        return visibleTrackers()[section].trackers.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let tracker = categories[indexPath.section].trackers[indexPath.item]
+        let tracker = visibleTrackers()[indexPath.section].trackers[indexPath.item]
         
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TrackerCell", for: indexPath) as? TrackerCollectionViewCell else {
             return UICollectionViewCell()
