@@ -16,6 +16,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     
     var trackerCategoryStore = TrackerCategoryStore()
     private var visibleCategories: [TrackerCategory] = []
+    private var recentlyCreatedTrackers: [Tracker] = []
     
     private let emptyImageView: UIImageView = {
         let imageView = UIImageView()
@@ -113,7 +114,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         let trackerTypeVC = TrackerTypeSelectionViewController()
         trackerTypeVC.delegate = self
         let nav = UINavigationController(rootViewController: trackerTypeVC)
-        nav.modalPresentationStyle = .pageSheet // пока используем это
+        nav.modalPresentationStyle = .pageSheet
         present(nav, animated: true)
     }
     
@@ -148,11 +149,15 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         let calendarWeekday = calendar.component(.weekday, from: selectedDate)
         let mappedRawValue = calendarWeekday == 1 ? 7 : calendarWeekday - 1
         let weekday = Tracker.Weekday(rawValue: mappedRawValue) ?? .monday
-        
+
         visibleCategories = trackerCategoryStore.categories.map { category in
-            let trackers = category.trackers.filter { $0.schedule.contains(weekday) }
-            return TrackerCategory(title: category.title, trackers: trackers)
+            let filteredTrackers = category.trackers.filter {
+                $0.schedule.contains(weekday) || recentlyCreatedTrackers.contains($0)
+            }
+            return TrackerCategory(title: category.title, trackers: filteredTrackers)
         }.filter { !$0.trackers.isEmpty }
+
+        recentlyCreatedTrackers.removeAll()
     }
     
     //MARK: - UICollectionView
@@ -216,6 +221,16 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
             guard self.selectedDate <= Date() else {
                 return
             }
+
+            let calendar = Calendar.current
+            let calendarWeekday = calendar.component(.weekday, from: self.selectedDate)
+            let mappedRawValue = calendarWeekday == 1 ? 7 : calendarWeekday - 1
+            let weekday = Tracker.Weekday(rawValue: mappedRawValue)!
+
+            guard tracker.schedule.contains(weekday) else {
+                return
+            }
+
             if isCompleted {
                 completedTrackers.removeAll(where: { $0 == record })
             } else {
@@ -257,6 +272,8 @@ extension TrackersViewController: TrackerCreationDelegate {
     func trackerWasCreated(_ tracker: Tracker) {
         trackerCategoryStore.add(tracker, toCategoryWithTitle: "Радостные мелочи")
         categories = trackerCategoryStore.categories
+        recentlyCreatedTrackers.append(tracker)
+        updateVisibleCategories()
         collectionView.reloadData()
         updatePlaceholderVisibility()
     }
