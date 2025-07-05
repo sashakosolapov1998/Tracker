@@ -16,7 +16,6 @@ final class ColorCell: UICollectionViewCell {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 8
-        view.clipsToBounds = true
         return view
     }()
 
@@ -24,10 +23,10 @@ final class ColorCell: UICollectionViewCell {
         super.init(frame: frame)
         contentView.addSubview(colorView)
         NSLayoutConstraint.activate([
-            colorView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            colorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            colorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            colorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
+            colorView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
+            colorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
+            colorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
+            colorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5)
         ])
     }
 
@@ -37,7 +36,14 @@ final class ColorCell: UICollectionViewCell {
 
     func configure(with color: UIColor, isSelected: Bool) {
         colorView.backgroundColor = color
-        colorView.layer.borderWidth = isSelected ? 3 : 0
-        colorView.layer.borderColor = isSelected ? UIColor.ypLightGray.cgColor : nil
+        backgroundColor = .white
+
+        layer.borderWidth = isSelected ? 3 : 0
+        layer.borderColor = isSelected ? color.withAlphaComponent(0.3).cgColor : nil
+        layer.cornerRadius = 8
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
     }
 }

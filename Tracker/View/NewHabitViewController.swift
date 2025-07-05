@@ -25,12 +25,15 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     @objc private func saveButtonTapped() {
         guard let title = trackerNameTextField.text, !title.isEmpty, !selectedDays.isEmpty else { return }
 
+        guard let colorIndex = selectedColorIndex?.item,
+              let emojiIndex = selectedEmojiIndex?.item else { return }
+
         let newTracker = Tracker(
             id: UUID(),
             title: title,
-            color: .blue, // тест
-            emoji: "🙂", // тест
-            schedule: selectedDays // тест
+            color: TrackerConstants.colors[colorIndex],
+            emoji: TrackerConstants.emojis[emojiIndex],
+            schedule: selectedDays
         )
         
         delegate?.trackerWasCreated(newTracker)
@@ -222,11 +225,11 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         contentStackView.addArrangedSubview(emojiTitleLabel)
         contentStackView.setCustomSpacing(12, after: emojiTitleLabel)
         contentStackView.addArrangedSubview(emojiCollectionView)
-        emojiCollectionView.heightAnchor.constraint(equalToConstant: 104).isActive = true
+        emojiCollectionView.heightAnchor.constraint(equalToConstant: 170).isActive = true
         contentStackView.addArrangedSubview(colorTitleLabel)
-        contentStackView.setCustomSpacing(12, after: colorTitleLabel)
+        contentStackView.setCustomSpacing(24, after: colorTitleLabel)
         contentStackView.addArrangedSubview(colorCollectionView)
-        colorCollectionView.heightAnchor.constraint(equalToConstant: 160).isActive = true
+        colorCollectionView.heightAnchor.constraint(equalToConstant: 180).isActive = true
         buttonStack.addArrangedSubview(cancelButton)
         buttonStack.addArrangedSubview(saveButton)
         buttonStack.heightAnchor.constraint(equalToConstant: buttonHeight).isActive = true
@@ -385,13 +388,16 @@ extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDe
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == colorCollectionView {
-            if let previous = selectedColorIndex, let previousCell = collectionView.cellForItem(at: previous) as? ColorCell {
-                previousCell.configure(with: TrackerConstants.colors[previous.item], isSelected: false)
-            }
-            if let cell = collectionView.cellForItem(at: indexPath) as? ColorCell {
-                cell.configure(with: TrackerConstants.colors[indexPath.item], isSelected: true)
+            if let previousIndex = selectedColorIndex {
+                if previousIndex == indexPath { return }
+                if let previousCell = collectionView.cellForItem(at: previousIndex) as? ColorCell {
+                    previousCell.configure(with: TrackerConstants.colors[previousIndex.item], isSelected: false)
+                }
             }
             selectedColorIndex = indexPath
+            if let currentCell = collectionView.cellForItem(at: indexPath) as? ColorCell {
+                currentCell.configure(with: TrackerConstants.colors[indexPath.item], isSelected: true)
+            }
         } else {
             if let previous = selectedEmojiIndex, let previousCell = collectionView.cellForItem(at: previous) as? EmojiCell {
                 previousCell.configure(with: TrackerConstants.emojis[previous.item], isSelected: false)
