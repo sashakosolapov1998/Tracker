@@ -17,6 +17,8 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     // private let stackBottomPadding: CGFloat = 160
     private let stackSpacing: CGFloat = 24
     
+    private let trackerStore = TrackerStore.shared
+    
     // MARK: - Properties
     @objc private func cancelButtonTapped() {
         dismiss(animated: true, completion: nil)
@@ -34,7 +36,13 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
             emoji: TrackerConstants.emojis[emojiIndex],
             schedule: selectedDays
         )
-        
+
+        do {
+            try trackerStore.addTracker(newTracker, category: nil)
+        } catch {
+            print("Ошибка при сохранении трекера: \(error)")
+        }
+
         delegate?.trackerWasCreated(newTracker)
         dismiss(animated: true, completion: nil)
     }

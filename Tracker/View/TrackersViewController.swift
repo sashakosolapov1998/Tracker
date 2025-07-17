@@ -6,7 +6,7 @@
 //
 import UIKit
 
-final class TrackersViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+final class TrackersViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, TrackerStoreDelegate {
     
     // MARK: - Properties
     var categories: [TrackerCategory] = []
@@ -14,7 +14,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     var selectedDate: Date = Date()
     private let searchController = UISearchController(searchResultsController: nil)
     
-    var trackerCategoryStore = TrackerCategoryStore()
+private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager.shared.context)
     private var visibleCategories: [TrackerCategory] = []
     private var recentlyCreatedTrackers: [Tracker] = []
     
@@ -58,8 +58,15 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
             withReuseIdentifier: TrackerSectionHeaderView.reuseIdentifier
         )
         
+        TrackerStore.shared.delegate = self
+        try? TrackerStore.shared.performFetch()
         updateVisibleCategories()
-        categories = trackerCategoryStore.categories
+        do {
+            categories = try trackerCategoryStore.fetchCategories()
+        } catch {
+            print("Ошибка при загрузке категорий: \(error)")
+            categories = []
+        }
         collectionView.reloadData()
         updatePlaceholderVisibility()
         
@@ -150,7 +157,12 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         let mappedRawValue = calendarWeekday == 1 ? 7 : calendarWeekday - 1
         let weekday = Tracker.Weekday(rawValue: mappedRawValue) ?? .monday
 
-        visibleCategories = trackerCategoryStore.categories.map { category in
+        guard let allCategories = try? trackerCategoryStore.fetchCategories() else {
+            visibleCategories = []
+            return
+        }
+
+        visibleCategories = allCategories.map { category in
             let filteredTrackers = category.trackers.filter {
                 $0.schedule.contains(weekday) || recentlyCreatedTrackers.contains($0)
             }
@@ -270,9 +282,28 @@ extension TrackersViewController: UISearchResultsUpdating {
 
 extension TrackersViewController: TrackerCreationDelegate {
     func trackerWasCreated(_ tracker: Tracker) {
-        trackerCategoryStore.add(tracker, toCategoryWithTitle: "Радостные мелочи")
-        categories = trackerCategoryStore.categories
+        // trackerCategoryStore.add(tracker, toCategoryWithTitle: "Радостные мелочи")
+        do {
+            categories = try trackerCategoryStore.fetchCategories()
+        } catch {
+            print("Ошибка при загрузке категорий после создания трекера: \(error)")
+            categories = []
+        }
         recentlyCreatedTrackers.append(tracker)
+        updateVisibleCategories()
+        collectionView.reloadData()
+        updatePlaceholderVisibility()
+    }
+}
+
+extension TrackersViewController {
+    func didUpdateTrackers() {
+        do {
+            categories = try trackerCategoryStore.fetchCategories()
+        } catch {
+            print("Ошибка при обновлении категорий: \(error)")
+            categories = []
+        }
         updateVisibleCategories()
         collectionView.reloadData()
         updatePlaceholderVisibility()
