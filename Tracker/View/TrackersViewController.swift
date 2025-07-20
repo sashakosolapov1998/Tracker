@@ -127,6 +127,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
     
     @objc private func dateChanged(_ sender: UIDatePicker) {
         selectedDate = sender.date
+        recentlyCreatedTrackers.removeAll()
         updateVisibleCategories()
         collectionView.reloadData()
         updatePlaceholderVisibility()
@@ -169,7 +170,6 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
             return TrackerCategory(title: category.title, trackers: filteredTrackers)
         }.filter { !$0.trackers.isEmpty }
 
-        recentlyCreatedTrackers.removeAll()
     }
     
     //MARK: - UICollectionView

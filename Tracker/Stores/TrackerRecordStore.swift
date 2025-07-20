@@ -18,7 +18,6 @@ final class TrackerRecordStore {
         let recordEntity = TrackerRecordCoreData(context: context)
         recordEntity.date = record.date
 
-        // Находим соответствующий трекер
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", record.trackerId as CVarArg)
 
@@ -58,5 +57,4 @@ final class TrackerRecordStore {
         }
     }
 
-    // Можем позже добавить фильтрацию по дате или трекеру
 }
