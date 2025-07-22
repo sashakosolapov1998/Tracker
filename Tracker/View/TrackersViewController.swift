@@ -292,7 +292,7 @@ extension TrackersViewController: TrackerCreationDelegate {
                 print("⚠️ selectedCategoryCoreData is nil")
                 return
             }
-            try? trackerCategoryStore.addTracker(tracker, toCategoryWithTitle: selectedCategoryCoreData.title ?? "Без категории")
+            try? trackerCategoryStore.addTracker(tracker, to: selectedCategoryCoreData)
         }
         do {
             categories = try trackerCategoryStore.fetchCategories()

@@ -94,6 +94,21 @@ extension TrackerCategoryStore {
         delegate?.trackerCategoryStoreDidUpdate()
     }
     
+    func addTracker(_ tracker: Tracker, to category: TrackerCategoryCoreData) throws {
+        let trackerEntity = TrackerCoreData(context: context)
+        trackerEntity.id = tracker.id
+        trackerEntity.title = tracker.title
+        trackerEntity.emoji = tracker.emoji
+        trackerEntity.colorHex = tracker.color.hexString
+        trackerEntity.schedule = Set(tracker.schedule).encode()
+
+        trackerEntity.category = category
+        category.addToTrackers(trackerEntity)
+
+        try context.save()
+        delegate?.trackerCategoryStoreDidUpdate()
+    }
+    
     func deleteAllTrackers() throws {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = TrackerCoreData.fetchRequest()
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
