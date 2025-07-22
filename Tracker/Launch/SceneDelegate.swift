@@ -21,14 +21,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             print("👋 Показываем онбординг") // убрать
             let onboardingVC = OnboardingPageController()
             onboardingVC.onboardingCompletion = {
-                print("✅ Онбординг завершён") //убрать
                 UserDefaults.standard.set(true, forKey: "onboardingWasShown")
-                self.window?.rootViewController = SplashViewController()
+                self.window?.rootViewController = MainTabBarController()
             }
             window.rootViewController = onboardingVC
         } else {
-            print("🚀 Онбординг уже был — запускаем Splash") // убрать
-            window.rootViewController = SplashViewController()
+            window.rootViewController = MainTabBarController()
         }
 
         self.window = window
