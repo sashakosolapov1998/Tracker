@@ -13,13 +13,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
-        window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = SplashViewController()
-        window?.makeKeyAndVisible()
+
+        let window = UIWindow(windowScene: windowScene)
+
+        if !UserDefaults.standard.bool(forKey: "onboardingWasShown") {
+            print("👋 Показываем онбординг") // убрать
+            let onboardingVC = OnboardingPageController()
+            onboardingVC.onboardingCompletion = {
+                print("✅ Онбординг завершён") //убрать
+                UserDefaults.standard.set(true, forKey: "onboardingWasShown")
+                self.window?.rootViewController = SplashViewController()
+            }
+            window.rootViewController = onboardingVC
+        } else {
+            print("🚀 Онбординг уже был — запускаем Splash") // убрать
+            window.rootViewController = SplashViewController()
+        }
+
+        self.window = window
+        window.makeKeyAndVisible()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -52,4 +65,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
 }
-

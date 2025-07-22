@@ -18,6 +18,7 @@ final class SplashViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("💦 SplashViewController открыт") // убрать
         view.backgroundColor = .ypBlue
         setupLayout()
         }
@@ -34,7 +35,10 @@ final class SplashViewController: UIViewController {
         super.viewDidAppear(animated)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.switchToMainScreen()
+            let onboardingWasShown = UserDefaults.standard.bool(forKey: "onboardingWasShown")
+            if onboardingWasShown {
+                self.switchToMainScreen()
+            }
         }
     }
 

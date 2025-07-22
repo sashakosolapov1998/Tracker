@@ -49,6 +49,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("📊 TrackersViewController открыт") // убрать
         // Удалим все трекеры при запуске (только для теста)
         // try? trackerCategoryStore.deleteAllTrackers()
             
