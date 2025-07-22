@@ -12,6 +12,8 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     var categories: [TrackerCategory] = []
     var completedTrackers: [TrackerRecord] = []
     var selectedDate: Date = Date()
+    var selectedCategory: TrackerCategory?
+    var selectedCategoryCoreData: TrackerCategoryCoreData?
     private let searchController = UISearchController(searchResultsController: nil)
     
 private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager.shared.context)
@@ -47,6 +49,9 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Удалим все трекеры при запуске (только для теста)
+        // try? trackerCategoryStore.deleteAllTrackers()
+            
         view.backgroundColor = .ypBackground
         view.addSubview(collectionView)
         collectionView.delegate = self
@@ -167,7 +172,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
             let filteredTrackers = category.trackers.filter {
                 $0.schedule.contains(weekday) || recentlyCreatedTrackers.contains($0)
             }
-            return TrackerCategory(title: category.title, trackers: filteredTrackers)
+            return TrackerCategory(title: category.title, trackers: filteredTrackers, coreData: category.coreData)
         }.filter { !$0.trackers.isEmpty }
 
     }
@@ -282,7 +287,13 @@ extension TrackersViewController: UISearchResultsUpdating {
 
 extension TrackersViewController: TrackerCreationDelegate {
     func trackerWasCreated(_ tracker: Tracker) {
-        // trackerCategoryStore.add(tracker, toCategoryWithTitle: "Радостные мелочи")
+        if let _ = selectedCategory?.title {
+            guard let selectedCategoryCoreData = selectedCategoryCoreData else {
+                print("⚠️ selectedCategoryCoreData is nil")
+                return
+            }
+            try? trackerCategoryStore.addTracker(tracker, toCategoryWithTitle: selectedCategoryCoreData.title ?? "Без категории")
+        }
         do {
             categories = try trackerCategoryStore.fetchCategories()
         } catch {

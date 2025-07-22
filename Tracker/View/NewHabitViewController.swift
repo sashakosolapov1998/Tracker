@@ -38,7 +38,12 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         )
 
         do {
-            try trackerStore.addTracker(newTracker, category: nil)
+            if let selectedCategory = selectedCategory {
+                try trackerStore.addTracker(newTracker, category: selectedCategory)
+            } else {
+                print("⚠️ Категория не выбрана. Сохраняем в 'Без категории'")
+                try trackerStore.addTracker(newTracker, category: nil)
+            }
         } catch {
             print("Ошибка при сохранении трекера: \(error)")
         }
@@ -51,6 +56,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     private var selectedDays: Set<Tracker.Weekday> = []
     private var selectedEmojiIndex: IndexPath?
     private var selectedColorIndex: IndexPath?
+    private var selectedCategory: TrackerCategoryCoreData?
     private let emojiTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Emoji"
@@ -302,7 +308,17 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
             ScheduleVC.delegate = self
             present(navController, animated: true, completion: nil)
         } else {
-            // TODO: Реализовать выбор категории
+            let categoryStore = CoreDataManager.shared.persistentContainer.viewContext
+            let viewModel = CategoriesViewModel(categoryStore: TrackerCategoryStore(context: categoryStore))
+            let categoriesVC = CategoriesViewController(viewModel: viewModel)
+
+            categoriesVC.onCategorySelected = { [weak self] selectedCategory in
+                self?.selectedCategory = selectedCategory
+                self?.dismiss(animated: true)
+            }
+
+            let navVC = UINavigationController(rootViewController: categoriesVC)
+            self.present(navVC, animated: true)
         }
     }
 }
