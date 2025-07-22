@@ -20,6 +20,8 @@ final class OnboardingViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - UI Elements
+    
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: page.imageName))
         imageView.contentMode = .scaleAspectFill
@@ -42,10 +44,13 @@ final class OnboardingViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
+        button.clipsToBounds = true
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
         return button
     }()
+    
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,27 +58,32 @@ final class OnboardingViewController: UIViewController {
         setupConstraints()
     }
     
+    // MARK: - Layout
+    
     private func setupConstraints() {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         button.translatesAutoresizingMaskIntoConstraints = false
-
+        
         NSLayoutConstraint.activate([
             imageView.topAnchor.constraint(equalTo: view.topAnchor),
             imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 432),
+            
+            titleLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -120),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-
+            
             button.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -50),
             button.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
+    
+    // MARK: - Actions
+    
     @objc private func didTapContinue() {
         UserDefaults.standard.set(true, forKey: "onboardingWasShown")
         delegate?.didFinishOnboarding()

@@ -50,9 +50,9 @@ final class OnboardingPageController: UIPageViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("📘 OnboardingPageController открыт") // убрать
         
         dataSource = self
         delegate = self
@@ -64,15 +64,18 @@ final class OnboardingPageController: UIPageViewController {
         view.addSubview(pageControl)
         setupPageControlConstraints()
     }
+    
+    // MARK: - Layout
     private func setupPageControlConstraints() {
         pageControl.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            pageControl.topAnchor.constraint(equalTo: view.topAnchor, constant: 638),
+            pageControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -32),
             pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
 }
 
+// MARK: - UIPageViewControllerDataSource
 extension OnboardingPageController: UIPageViewControllerDataSource {
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let index = pages.firstIndex(of: viewController) else { return nil }
@@ -85,6 +88,7 @@ extension OnboardingPageController: UIPageViewControllerDataSource {
     }
 }
 
+// MARK: - UIPageViewControllerDelegate
 extension OnboardingPageController: UIPageViewControllerDelegate {
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         if let currentVC = viewControllers?.first,
@@ -94,6 +98,7 @@ extension OnboardingPageController: UIPageViewControllerDelegate {
     }
 }
 
+// MARK: - OnboardingDelegate
 extension OnboardingPageController: OnboardingDelegate {
     func didFinishOnboarding() {
         onboardingCompletion?()

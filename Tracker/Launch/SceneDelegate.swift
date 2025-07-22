@@ -18,7 +18,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
 
         if !UserDefaults.standard.bool(forKey: "onboardingWasShown") {
-            print("👋 Показываем онбординг") // убрать
             let onboardingVC = OnboardingPageController()
             onboardingVC.onboardingCompletion = {
                 UserDefaults.standard.set(true, forKey: "onboardingWasShown")
