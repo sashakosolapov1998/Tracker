@@ -29,7 +29,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
     
     private let emptyLabel: UILabel = {
         let label = UILabel()
-        label.text = "Что будем отслеживать?"
+        label.text = NSLocalizedString("empty_placeholder_text", comment: "")
         label.textColor = .ypBlack
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textAlignment = .center
@@ -90,7 +90,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
     
     // MARK: - Setup UI
     private func setupNavigationBar() {
-        title = "Трекеры"
+        title = NSLocalizedString("trackers_title", comment: "")
         navigationController?.navigationBar.prefersLargeTitles = true
         
         let datePicker = UIDatePicker()
@@ -116,7 +116,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
     private func setupSearchController() {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Поиск"
+        searchController.searchBar.placeholder = NSLocalizedString("search_placeholder", comment: "")
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
@@ -230,7 +230,8 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         let record = TrackerRecord(trackerId: tracker.id, date: selectedDate)
         let isCompleted = completedTrackers.contains(where: { $0 == record })
         
-        cell.daysLabel.text = "\(completedTrackers.filter { $0.trackerId == tracker.id }.count) дней"
+        let daysCount = completedTrackers.filter { $0.trackerId == tracker.id }.count
+        cell.daysLabel.text = String.localizedStringWithFormat(NSLocalizedString("days_count", comment: ""), daysCount)
         let imageName = isCompleted ? "done" : "plus"
         cell.plusButton.setImage(UIImage(named: imageName), for: .normal)
         

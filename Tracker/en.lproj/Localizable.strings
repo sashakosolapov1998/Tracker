@@ -1,0 +1,44 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Александр Косолапов on 23/7/25.
+  
+*/
+
+/* English localization */
+"trackers_title" = "Trackers";
+"empty_placeholder_text" = "What shall we track?";
+"search_placeholder" = "Search";
+"days_count" = "%#@days@";
+"create_tracker" = "Create Tracker";
+"habit" = "Habit";
+"irregular_event" = "Irregular Event";
+"schedule_title" = "Schedule";
+"done_button_title" = "Done";
+"new_habit_title" = "New Habit";
+"emoji_title" = "Emoji";
+"color_title" = "Color";
+"cancel_button_title" = "Cancel";
+"create_button_title" = "Create";
+"tracker_name_placeholder" = "Enter tracker name";
+"category_option" = "Category";
+"schedule_option" = "Schedule";
+"category_title" = "Category";
+"add_category_button" = "Add Category";
+"categories_placeholder" = "Habits and events can be grouped by meaning";
+"new_category_title" = "New Category";
+"category_name_title" = "Category Name";
+"category_name_placeholder" = "Enter category name";
+"done_button_title" = "Done";
+"tabbar_trackers_title" = "Trackers";
+"tabbar_statistics_title" = "Statistics";
+"weekday_monday" = "Monday";
+"weekday_tuesday" = "Tuesday";
+"weekday_wednesday" = "Wednesday";
+"weekday_thursday" = "Thursday";
+"weekday_friday" = "Friday";
+"weekday_saturday" = "Saturday";
+"weekday_sunday" = "Sunday";
+
+/* Pluralization for "day" is defined in Localizable.stringsdict */

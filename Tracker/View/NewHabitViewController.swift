@@ -59,7 +59,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     private var selectedCategory: TrackerCategoryCoreData?
     private let emojiTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Emoji"
+        label.text = NSLocalizedString("emoji_title", comment: "")
         label.font = .systemFont(ofSize: 19, weight: .bold)
         label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -85,7 +85,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     
     private let colorTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Цвет"
+        label.text = NSLocalizedString("color_title", comment: "")
         label.font = .systemFont(ofSize: 19, weight: .bold)
         label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -111,7 +111,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     
     private let cancelButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Отменить", for: .normal)
+        button.setTitle(NSLocalizedString("cancel_button_title", comment: ""), for: .normal)
         button.setTitleColor(.ypBlue, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17)
         button.layer.cornerRadius = 16
@@ -124,7 +124,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     
     private let saveButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Создать", for: .normal)
+        button.setTitle(NSLocalizedString("create_button_title", comment: ""), for: .normal)
         button.setTitleColor(.ypWhite, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypGray
@@ -146,7 +146,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         let textField = UITextField()
         textField.textColor = .ypBlack
         textField.font = .systemFont(ofSize: 17)
-        textField.placeholder = "Введите название трекера"
+        textField.placeholder = NSLocalizedString("tracker_name_placeholder", comment: "")
         textField.textAlignment = .left
         
         textField.backgroundColor = .ypBackground
@@ -224,7 +224,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     
     private func setupTitleNavBar() {
         let titleLabel = UILabel()
-        titleLabel.text = "Новая привычка"
+        titleLabel.text = NSLocalizedString("new_habit_title", comment: "")
         titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         titleLabel.textColor = .ypBlack
         navigationItem.titleView = titleLabel
@@ -281,7 +281,9 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! OptionCell
-        cell.textLabel?.text = indexPath.row == 0 ? "Категория" : "Расписание"
+        cell.textLabel?.text = indexPath.row == 0
+            ? NSLocalizedString("category_option", comment: "")
+            : NSLocalizedString("schedule_option", comment: "")
         cell.showDivider(indexPath.row == 0)
         return cell
     }

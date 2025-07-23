@@ -35,7 +35,7 @@ final class ScheduleViewController: UIViewController {
     
     private let doneButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(NSLocalizedString("done_button_title", comment: ""), for: .normal)
         button.setTitleColor(.ypWhite, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypBlack
@@ -59,7 +59,7 @@ final class ScheduleViewController: UIViewController {
     
     //MARK: - Setup
     private func setupTitleNavBar() {
-        navigationItem.title = "Расписание"
+        navigationItem.title = NSLocalizedString("schedule_title", comment: "")
     }
 
     private func setupConstraints() {

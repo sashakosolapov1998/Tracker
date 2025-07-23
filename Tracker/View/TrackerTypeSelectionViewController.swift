@@ -11,7 +11,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
     weak var delegate: TrackerCreationDelegate?
     private lazy var habitButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Привычка", for: .normal)
+        button.setTitle(NSLocalizedString("habit", comment: ""), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
@@ -21,7 +21,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
     
     private lazy var irregularButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Нерегулярное событие", for: .normal)
+        button.setTitle(NSLocalizedString("irregular_event", comment: ""), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
@@ -34,7 +34,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         setupLayout()
-        navigationItem.title = "Создание трекера"
+        navigationItem.title = NSLocalizedString("create_tracker", comment: "")
     }
 
     // MARK: - Layout

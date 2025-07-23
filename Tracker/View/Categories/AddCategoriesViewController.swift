@@ -33,9 +33,9 @@ final class AddCategoriesViewController: UIViewController {
 
     private func setup() {
         view.backgroundColor = .white
-        title = "Новая категория"
+        title = NSLocalizedString("new_category_title", comment: "")
 
-        //titleLabel.text = "Название категории"
+        titleLabel.text = NSLocalizedString("category_name_title", comment: "")
         titleLabel.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         titleLabel.textColor = .ypBlack
 
@@ -45,11 +45,11 @@ final class AddCategoriesViewController: UIViewController {
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
         textField.leftViewMode = .always
         textField.clearButtonMode = .whileEditing
-        textField.placeholder = "Введите название категории"
+        textField.placeholder = NSLocalizedString("category_name_placeholder", comment: "")
         textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         textField.delegate = self
 
-        readyButton.setTitle("Готово", for: .normal)
+        readyButton.setTitle(NSLocalizedString("done_button_title", comment: ""), for: .normal)
         readyButton.backgroundColor = .gray
         readyButton.setTitleColor(.white, for: .normal)
         readyButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
