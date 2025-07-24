@@ -53,7 +53,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         // Удалим все трекеры при запуске (только для теста)
         // try? trackerCategoryStore.deleteAllTrackers()
             
-        view.backgroundColor = .ypBackground
+        view.backgroundColor = .ypWhite
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -92,6 +92,8 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
     private func setupNavigationBar() {
         title = "Трекеры"
         navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.barTintColor = .ypWhite
+        navigationController?.navigationBar.isTranslucent = false
         
         let datePicker = UIDatePicker()
         datePicker.preferredDatePickerStyle = .compact
@@ -231,8 +233,8 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         let isCompleted = completedTrackers.contains(where: { $0 == record })
         
         cell.daysLabel.text = "\(completedTrackers.filter { $0.trackerId == tracker.id }.count) дней"
-        let imageName = isCompleted ? "done" : "plus"
-        cell.plusButton.setImage(UIImage(named: imageName), for: .normal)
+        let imageResource: ImageResource = isCompleted ? .done : .plus
+        cell.plusButton.setImage(UIImage(resource: imageResource), for: .normal)
         
         cell.plusButtonAction = { [weak self] in
             guard let self else { return }

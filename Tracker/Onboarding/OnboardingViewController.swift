@@ -71,7 +71,7 @@ final class OnboardingViewController: UIViewController {
             imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            titleLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -120),
+            titleLabel.bottomAnchor.constraint(equalTo: button.topAnchor, constant: -160),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
