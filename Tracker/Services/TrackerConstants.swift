@@ -12,7 +12,7 @@ struct TrackerConstants {
         "😇", "😡", "🥶", "🤔", "🙌", "🍔",
         "🥦", "🏓", "🥇", "🎸", "🏝", "😪"
     ]
-
+    
     static let colors: [UIColor] = [
         UIColor(named: "Color selection 1") ?? .black,
         UIColor(named: "Color selection 2") ?? .black,

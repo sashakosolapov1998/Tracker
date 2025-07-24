@@ -11,13 +11,13 @@ final class TrackerStore: NSObject {
     static let shared = TrackerStore(context: CoreDataManager.shared.context)
     
     private let context: NSManagedObjectContext
-
+    
     weak var delegate: TrackerStoreDelegate?
-
+    
     private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \TrackerCoreData.title, ascending: true)]
-
+        
         let controller = NSFetchedResultsController(
             fetchRequest: request,
             managedObjectContext: context,
@@ -27,11 +27,15 @@ final class TrackerStore: NSObject {
         controller.delegate = self
         return controller
     }()
-
+    
+    // MARK: - Initialization
+    
     init(context: NSManagedObjectContext) {
         self.context = context
     }
-
+    
+    // MARK: - Public Methods
+    
     func addTracker(_ tracker: Tracker, category: TrackerCategoryCoreData?) throws {
         let trackerEntity = TrackerCoreData(context: context)
         trackerEntity.id = tracker.id
@@ -39,7 +43,7 @@ final class TrackerStore: NSObject {
         trackerEntity.emoji = tracker.emoji
         trackerEntity.colorHex = tracker.color.hexString
         trackerEntity.schedule = tracker.schedule.encode()
-
+        
         var resolvedCategory = category
         if resolvedCategory == nil {
             let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
@@ -54,9 +58,8 @@ final class TrackerStore: NSObject {
         }
         trackerEntity.category = resolvedCategory
         try context.save()
-        print("✅ Tracker сохранён: \(tracker.title)")
     }
-
+    
     func fetchTrackers() throws -> [Tracker] {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         let result = try context.fetch(request)
@@ -68,7 +71,7 @@ final class TrackerStore: NSObject {
                   let scheduleString = entity.schedule else {
                 return nil
             }
-
+            
             return Tracker(
                 id: id,
                 title: title,
@@ -78,7 +81,7 @@ final class TrackerStore: NSObject {
             )
         }
     }
-
+    
     func deleteTracker(with id: UUID) throws {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
@@ -87,15 +90,15 @@ final class TrackerStore: NSObject {
             try context.save()
         }
     }
-
+    
     func performFetch() throws {
         try fetchedResultsController.performFetch()
     }
-
+    
     func numberOfTrackers() -> Int {
         fetchedResultsController.fetchedObjects?.count ?? 0
     }
-
+    
     func tracker(at index: Int) -> Tracker? {
         guard let entity = fetchedResultsController.fetchedObjects?[index],
               let id = entity.id,
@@ -105,7 +108,7 @@ final class TrackerStore: NSObject {
               let scheduleString = entity.schedule else {
             return nil
         }
-
+        
         return Tracker(
             id: id,
             title: title,
@@ -116,11 +119,15 @@ final class TrackerStore: NSObject {
     }
 }
 
+// MARK: - NSFetchedResultsControllerDelegate
+
 extension TrackerStore: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         delegate?.didUpdateTrackers()
     }
 }
+
+// MARK: - TrackerStoreDelegate
 
 protocol TrackerStoreDelegate: AnyObject {
     func didUpdateTrackers()

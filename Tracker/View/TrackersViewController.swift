@@ -12,6 +12,8 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     var categories: [TrackerCategory] = []
     var completedTrackers: [TrackerRecord] = []
     var selectedDate: Date = Date()
+    var selectedCategory: TrackerCategory?
+    var selectedCategoryCoreData: TrackerCategoryCoreData?
     private let searchController = UISearchController(searchResultsController: nil)
     
 private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager.shared.context)
@@ -47,7 +49,11 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypBackground
+        print("📊 TrackersViewController открыт") // убрать
+        // Удалим все трекеры при запуске (только для теста)
+        // try? trackerCategoryStore.deleteAllTrackers()
+            
+        view.backgroundColor = .ypWhite
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -84,8 +90,18 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
     
     // MARK: - Setup UI
     private func setupNavigationBar() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .ypWhite
+        appearance.shadowColor = .clear
+
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
         title = "Трекеры"
         navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.barTintColor = .ypWhite
+        navigationController?.navigationBar.isTranslucent = false
         
         let datePicker = UIDatePicker()
         datePicker.preferredDatePickerStyle = .compact
@@ -138,7 +154,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         view.addSubview(emptyLabel)
         NSLayoutConstraint.activate([
             emptyImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            emptyImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            emptyImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
             
             emptyLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyLabel.topAnchor.constraint(equalTo: emptyImageView.bottomAnchor, constant: 8)
@@ -164,10 +180,10 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         }
 
         visibleCategories = allCategories.map { category in
-            let filteredTrackers = category.trackers.filter {
-                $0.schedule.contains(weekday) || recentlyCreatedTrackers.contains($0)
+            let filteredTrackers = category.trackers.filter { tracker in
+                tracker.schedule.contains(weekday) || recentlyCreatedTrackers.contains(where: { $0.id == tracker.id })
             }
-            return TrackerCategory(title: category.title, trackers: filteredTrackers)
+            return TrackerCategory(title: category.title, trackers: filteredTrackers, coreData: category.coreData)
         }.filter { !$0.trackers.isEmpty }
 
     }
@@ -225,8 +241,8 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         let isCompleted = completedTrackers.contains(where: { $0 == record })
         
         cell.daysLabel.text = "\(completedTrackers.filter { $0.trackerId == tracker.id }.count) дней"
-        let imageName = isCompleted ? "done" : "plus"
-        cell.plusButton.setImage(UIImage(named: imageName), for: .normal)
+        let imageResource: ImageResource = isCompleted ? .done : .plus
+        cell.plusButton.setImage(UIImage(resource: imageResource), for: .normal)
         
         cell.plusButtonAction = { [weak self] in
             guard let self else { return }
@@ -282,14 +298,20 @@ extension TrackersViewController: UISearchResultsUpdating {
 
 extension TrackersViewController: TrackerCreationDelegate {
     func trackerWasCreated(_ tracker: Tracker) {
-        // trackerCategoryStore.add(tracker, toCategoryWithTitle: "Радостные мелочи")
+        if let _ = selectedCategory?.title {
+            guard let selectedCategoryCoreData = selectedCategoryCoreData else {
+                print("⚠️ selectedCategoryCoreData is nil")
+                return
+            }
+            try? trackerCategoryStore.addTracker(tracker, to: selectedCategoryCoreData)
+        }
         do {
             categories = try trackerCategoryStore.fetchCategories()
         } catch {
             print("Ошибка при загрузке категорий после создания трекера: \(error)")
             categories = []
         }
-        recentlyCreatedTrackers.append(tracker)
+        recentlyCreatedTrackers = [tracker]
         updateVisibleCategories()
         collectionView.reloadData()
         updatePlaceholderVisibility()

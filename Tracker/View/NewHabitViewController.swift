@@ -38,7 +38,12 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         )
 
         do {
-            try trackerStore.addTracker(newTracker, category: nil)
+            if let selectedCategory = selectedCategory {
+                try trackerStore.addTracker(newTracker, category: selectedCategory)
+            } else {
+                print("⚠️ Категория не выбрана. Сохраняем в 'Без категории'")
+                try trackerStore.addTracker(newTracker, category: nil)
+            }
         } catch {
             print("Ошибка при сохранении трекера: \(error)")
         }
@@ -51,6 +56,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     private var selectedDays: Set<Tracker.Weekday> = []
     private var selectedEmojiIndex: IndexPath?
     private var selectedColorIndex: IndexPath?
+    private var selectedCategory: TrackerCategoryCoreData?
     private let emojiTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Emoji"
@@ -245,6 +251,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     
     func scheduleViewController(_ viewController: ScheduleViewController, didSelectWeekdays weekdays: Set<Tracker.Weekday>) {
         self.selectedDays = weekdays
+        tableView.reloadData()
         updateSaveButtonState()
     }
 
@@ -275,7 +282,18 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! OptionCell
-        cell.textLabel?.text = indexPath.row == 0 ? "Категория" : "Расписание"
+        let title = indexPath.row == 0 ? "Категория" : "Расписание"
+        var subtitle: String?
+
+        if indexPath.row == 0 {
+            subtitle = selectedCategory?.title
+        } else {
+            let sortedDays = selectedDays.sorted { $0.rawValue < $1.rawValue }
+            let weekdayShorts = sortedDays.map { $0.shortTitle }
+            subtitle = weekdayShorts.isEmpty ? nil : weekdayShorts.joined(separator: ", ")
+        }
+
+        cell.configure(title: title, subtitle: subtitle)
         cell.showDivider(indexPath.row == 0)
         return cell
     }
@@ -302,15 +320,30 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
             ScheduleVC.delegate = self
             present(navController, animated: true, completion: nil)
         } else {
-            // TODO: Реализовать выбор категории
+            let categoryStore = CoreDataManager.shared.persistentContainer.viewContext
+            let viewModel = CategoriesViewModel(categoryStore: TrackerCategoryStore(context: categoryStore))
+            let categoriesVC = CategoriesViewController(viewModel: viewModel)
+
+            categoriesVC.onCategorySelected = { [weak self] selectedCategory in
+                self?.selectedCategory = selectedCategory
+                self?.tableView.reloadData()
+                self?.dismiss(animated: true)
+            }
+
+            let navVC = UINavigationController(rootViewController: categoriesVC)
+            self.present(navVC, animated: true)
         }
     }
 }
 final class OptionCell: UITableViewCell {
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupAppearance()
-    }
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 15)
+        label.textColor = UIColor.ypGray
+        label.numberOfLines = 1
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     private let divider: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -318,6 +351,14 @@ final class OptionCell: UITableViewCell {
         return view
     }()
 
+    // MARK: - Constraints for textLabel
+    private var textTopConstraint: NSLayoutConstraint?
+    private var textCenterYConstraint: NSLayoutConstraint?
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupAppearance()
+    }
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupAppearance()
@@ -333,15 +374,33 @@ final class OptionCell: UITableViewCell {
         textLabel?.textAlignment = .left
         textLabel?.numberOfLines = 1
         textLabel?.baselineAdjustment = .alignCenters
+
+        // Add to contentView
         contentView.addSubview(divider)
+        contentView.addSubview(subtitleLabel)
+
+        // textLabel constraints
+        if let textLabel = textLabel {
+            textLabel.translatesAutoresizingMaskIntoConstraints = false
+            textTopConstraint = textLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 14)
+            textCenterYConstraint = textLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            NSLayoutConstraint.activate([
+                textLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+                textLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+                textTopConstraint!
+            ])
+        }
 
         NSLayoutConstraint.activate([
             divider.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             divider.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             divider.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            divider.heightAnchor.constraint(equalToConstant: 0.5)
+            divider.heightAnchor.constraint(equalToConstant: 0.5),
+            subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            subtitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 38),
+            subtitleLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -14)
         ])
-
         divider.isHidden = true
     }
     
@@ -349,10 +408,24 @@ final class OptionCell: UITableViewCell {
         divider.isHidden = !show
     }
 
+    func configure(title: String, subtitle: String?) {
+        textLabel?.text = title
+        subtitleLabel.text = subtitle
+        subtitleLabel.isHidden = subtitle == nil
+        // Manage textLabel vertical alignment constraints
+        textTopConstraint?.isActive = subtitle != nil
+        textCenterYConstraint?.isActive = subtitle == nil
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         textLabel?.text = nil
+        subtitleLabel.text = nil
+        subtitleLabel.isHidden = true
         divider.isHidden = true
+        // Reset constraints
+        textTopConstraint?.isActive = true
+        textCenterYConstraint?.isActive = false
     }
 }
 
@@ -413,6 +486,22 @@ extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDe
                 cell.configure(with: TrackerConstants.emojis[indexPath.item], isSelected: true)
             }
             selectedEmojiIndex = indexPath
+        }
+    }
+}
+
+
+// MARK: - Tracker.Weekday shortTitle
+extension Tracker.Weekday {
+    var shortTitle: String {
+        switch self {
+        case .monday: return "Пн"
+        case .tuesday: return "Вт"
+        case .wednesday: return "Ср"
+        case .thursday: return "Чт"
+        case .friday: return "Пт"
+        case .saturday: return "Сб"
+        case .sunday: return "Вс"
         }
     }
 }
