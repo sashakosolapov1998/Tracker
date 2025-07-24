@@ -146,7 +146,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         view.addSubview(emptyLabel)
         NSLayoutConstraint.activate([
             emptyImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            emptyImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            emptyImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
             
             emptyLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyLabel.topAnchor.constraint(equalTo: emptyImageView.bottomAnchor, constant: 8)
@@ -172,8 +172,8 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         }
 
         visibleCategories = allCategories.map { category in
-            let filteredTrackers = category.trackers.filter {
-                $0.schedule.contains(weekday) || recentlyCreatedTrackers.contains($0)
+            let filteredTrackers = category.trackers.filter { tracker in
+                tracker.schedule.contains(weekday) || recentlyCreatedTrackers.contains(where: { $0.id == tracker.id })
             }
             return TrackerCategory(title: category.title, trackers: filteredTrackers, coreData: category.coreData)
         }.filter { !$0.trackers.isEmpty }
@@ -303,7 +303,7 @@ extension TrackersViewController: TrackerCreationDelegate {
             print("Ошибка при загрузке категорий после создания трекера: \(error)")
             categories = []
         }
-        recentlyCreatedTrackers.append(tracker)
+        recentlyCreatedTrackers = [tracker]
         updateVisibleCategories()
         collectionView.reloadData()
         updatePlaceholderVisibility()
