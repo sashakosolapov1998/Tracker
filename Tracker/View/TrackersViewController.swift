@@ -15,6 +15,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     var selectedCategory: TrackerCategory?
     var selectedCategoryCoreData: TrackerCategoryCoreData?
     private let searchController = UISearchController(searchResultsController: nil)
+    private var searchText: String = ""
     
 private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager.shared.context)
     private var visibleCategories: [TrackerCategory] = []
@@ -171,11 +172,11 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
 
         visibleCategories = allCategories.map { category in
             let filteredTrackers = category.trackers.filter {
-                $0.schedule.contains(weekday) || recentlyCreatedTrackers.contains($0)
+                ($0.schedule.contains(weekday) || recentlyCreatedTrackers.contains($0)) &&
+                (searchText.isEmpty || $0.title.lowercased().contains(searchText))
             }
             return TrackerCategory(title: category.title, trackers: filteredTrackers, coreData: category.coreData)
         }.filter { !$0.trackers.isEmpty }
-
     }
     
     //MARK: - UICollectionView
@@ -282,8 +283,10 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
 extension TrackersViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        let searchText = searchController.searchBar.text ?? ""
-        // Реализуем фильрацию позже
+        searchText = searchController.searchBar.text?.lowercased() ?? ""
+        updateVisibleCategories()
+        collectionView.reloadData()
+        updatePlaceholderVisibility()
     }
 }
 
