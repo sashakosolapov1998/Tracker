@@ -117,6 +117,24 @@ final class TrackerStore: NSObject {
             schedule: Set<Tracker.Weekday>.decode(from: scheduleString)
         )
     }
+    
+    func updateTracker(_ tracker: Tracker, category: TrackerCategoryCoreData?) throws {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+
+        guard let existing = try context.fetch(request).first else {
+            throw NSError(domain: "TrackerStore", code: 404, userInfo: [NSLocalizedDescriptionKey: "Tracker not found"])
+        }
+
+        existing.title = tracker.title
+        existing.emoji = tracker.emoji
+        existing.colorHex = tracker.color.hexString
+        existing.schedule = tracker.schedule.encode()
+        existing.category = category
+
+        try context.save()
+        delegate?.didUpdateTrackers()
+    }
 }
 
 // MARK: - NSFetchedResultsControllerDelegate

@@ -20,6 +20,18 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     private let trackerStore = TrackerStore.shared
     
     // MARK: - Properties
+    private var existingTracker: Tracker?
+    private var completedDaysCount: Int = 0
+    init(tracker: Tracker? = nil, completedDaysCount: Int = 0) {
+        self.existingTracker = tracker
+        self.completedDaysCount = completedDaysCount
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     @objc private func cancelButtonTapped() {
         dismiss(animated: true, completion: nil)
     }
@@ -28,6 +40,30 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
 
         guard let colorIndex = selectedColorIndex?.item,
               let emojiIndex = selectedEmojiIndex?.item else { return }
+
+        if let oldTracker = existingTracker {
+            let updatedTracker = Tracker(
+                id: oldTracker.id,
+                title: title,
+                color: TrackerConstants.colors[colorIndex],
+                emoji: TrackerConstants.emojis[emojiIndex],
+                schedule: selectedDays
+            )
+
+            do {
+                if let selectedCategory = selectedCategory {
+                    try trackerStore.updateTracker(updatedTracker, category: selectedCategory)
+                } else {
+                    try trackerStore.updateTracker(updatedTracker, category: nil)
+                }
+            } catch {
+                print("Ошибка при редактировании трекера: \(error)")
+            }
+
+            delegate?.trackerWasEdited(updatedTracker)
+            dismiss(animated: true, completion: nil)
+            return
+        }
 
         let newTracker = Tracker(
             id: UUID(),
@@ -192,6 +228,22 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         setupButtons()
         trackerNameTextField.delegate = self
         trackerNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+
+        if let tracker = existingTracker {
+            title = NSLocalizedString("edit_tracker_title", comment: "")
+            trackerNameTextField.text = tracker.title
+            selectedDays = tracker.schedule ?? []
+
+            if let emojiIndex = TrackerConstants.emojis.firstIndex(of: tracker.emoji) {
+                selectedEmojiIndex = IndexPath(item: emojiIndex, section: 0)
+            }
+
+            if let colorIndex = TrackerConstants.colors.firstIndex(of: tracker.color) {
+                selectedColorIndex = IndexPath(item: colorIndex, section: 0)
+            }
+
+            saveButton.setTitle(NSLocalizedString("save_button_title", comment: ""), for: .normal)
+        }
     }
     
     // MARK: - Setup
@@ -507,3 +559,4 @@ extension Tracker.Weekday {
         }
     }
 }
+

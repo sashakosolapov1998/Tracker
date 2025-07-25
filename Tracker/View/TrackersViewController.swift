@@ -324,6 +324,18 @@ extension TrackersViewController: TrackerCreationDelegate {
         collectionView.reloadData()
         updatePlaceholderVisibility()
     }
+
+    func trackerWasEdited(_ tracker: Tracker) {
+        do {
+            categories = try trackerCategoryStore.fetchCategories()
+        } catch {
+            print("Ошибка при обновлении категорий после редактирования: \(error)")
+            categories = []
+        }
+        updateVisibleCategories()
+        collectionView.reloadData()
+        updatePlaceholderVisibility()
+    }
 }
 
 extension TrackersViewController {
@@ -345,7 +357,11 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
         print("Редактировать трекер: \(tracker.title)")
-        // TODO: Открыть экран редактирования
+        let completedCount = completedTrackers.filter { $0.trackerId == tracker.id }.count
+        let editVC = NewHabitViewController(tracker: tracker, completedDaysCount: completedCount)
+        editVC.delegate = self
+        let navVC = UINavigationController(rootViewController: editVC)
+        present(navVC, animated: true)
     }
 
     func trackersCollectionViewCellDidRequestDelete(_ cell: TrackerCollectionViewCell) {

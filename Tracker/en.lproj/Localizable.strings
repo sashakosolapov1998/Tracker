@@ -52,4 +52,7 @@
 "cancel" = "Cancel";
 //"delete_title" = "Are you sure you want to delete the tracker?";
 "delete_message" = "Are you sure you want to delete the tracker?";
+
+"cancel_button_title" = "Cancel";
+"create_button_title" = "Create";
 /* Pluralization for "day" is defined in Localizable.stringsdict */
