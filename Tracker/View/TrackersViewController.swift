@@ -20,6 +20,16 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
 private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager.shared.context)
     private var visibleCategories: [TrackerCategory] = []
     private var recentlyCreatedTrackers: [Tracker] = []
+    private var currentFilter: TrackerFilter = .default
+    private let filterButton: UIButton = {
+        let button = UIButton()
+        button.setTitle(NSLocalizedString("filters_button_title", comment: ""), for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .ypBlue
+        button.layer.cornerRadius = 16
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     private let emptyImageView: UIImageView = {
         let imageView = UIImageView()
@@ -87,6 +97,17 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         setupSearchController()
         setupNavigationBar()
         setupEmptyPlaceholder()
+
+        view.addSubview(filterButton)
+        filterButton.addTarget(self, action: #selector(addFilterButtontapped), for: .touchUpInside)
+
+        NSLayoutConstraint.activate([
+            filterButton.heightAnchor.constraint(equalToConstant: 50),
+            filterButton.widthAnchor.constraint(equalToConstant: 115),
+            filterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
+        ])
+        collectionView.alwaysBounceVertical = true
     }
     
     // MARK: - Setup UI
@@ -183,13 +204,28 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         }
 
         visibleCategories = allCategories.map { category in
-
             let filteredTrackers = category.trackers.filter { tracker in
-                tracker.schedule.contains(weekday) || recentlyCreatedTrackers.contains(where: { $0.id == tracker.id })
+                let matchesDay = tracker.schedule.contains(weekday)
 
+                switch currentFilter {
+                case .all, .today:
+                    return matchesDay
+                case .completed:
+                    return matchesDay && completedTrackers.contains(where: { $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) })
+                case .notCompleted:
+                    return matchesDay && !completedTrackers.contains(where: { $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) })
+                }
             }
             return TrackerCategory(title: category.title, trackers: filteredTrackers, coreData: category.coreData)
         }.filter { !$0.trackers.isEmpty }
+        filterButton.isHidden = visibleCategories.allSatisfy { $0.trackers.isEmpty }
+        let isActive = currentFilter.isCustomFilter
+        filterButton.setTitleColor(isActive ? .red : .white, for: .normal)
+    }
+    @objc private func addFilterButtontapped() {
+        let filterVC = FilterViewController(selectedFilter: currentFilter)
+        filterVC.delegate = self
+        present(filterVC, animated: true)
     }
     
     //MARK: - UICollectionView
@@ -386,5 +422,17 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
 
         alert.addAction(UIAlertAction(title: NSLocalizedString("cancel", comment: ""), style: .cancel))
         present(alert, animated: true)
+    }
+}
+
+extension TrackersViewController: FilterViewControllerDelegate {
+    func filterViewController(_ controller: FilterViewController, didSelect filter: TrackerFilter) {
+        currentFilter = filter
+        if filter == .today {
+            selectedDate = Date()
+        }
+        updateVisibleCategories()
+        collectionView.reloadData()
+        updatePlaceholderVisibility()
     }
 }

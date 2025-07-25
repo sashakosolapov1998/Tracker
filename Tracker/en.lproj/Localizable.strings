@@ -55,4 +55,5 @@
 
 "cancel_button_title" = "Cancel";
 "create_button_title" = "Create";
+"filters_button_title" = "Filters";
 /* Pluralization for "day" is defined in Localizable.stringsdict */
