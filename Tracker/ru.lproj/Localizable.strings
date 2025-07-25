@@ -40,5 +40,12 @@
 "weekday_friday" = "Пятница";
 "weekday_saturday" = "Суббота";
 "weekday_sunday" = "Воскресенье";
+"weekday_mon_short" = "Пн";
+"weekday_tue_short" = "Вт";
+"weekday_wed_short" = "Ср";
+"weekday_thu_short" = "Чт";
+"weekday_fri_short" = "Пт";
+"weekday_sat_short" = "Сб";
+"weekday_sun_short" = "Вс";
 
 /* Плюрализация для слова "день" */

@@ -40,5 +40,12 @@
 "weekday_friday" = "Friday";
 "weekday_saturday" = "Saturday";
 "weekday_sunday" = "Sunday";
+"weekday_mon_short" = "Mon";
+"weekday_tue_short" = "Tue";
+"weekday_wed_short" = "Wed";
+"weekday_thu_short" = "Thu";
+"weekday_fri_short" = "Fri";
+"weekday_sat_short" = "Sat";
+"weekday_sun_short" = "Sun";
 
 /* Pluralization for "day" is defined in Localizable.stringsdict */

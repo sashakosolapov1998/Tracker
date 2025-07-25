@@ -497,13 +497,13 @@ extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDe
 extension Tracker.Weekday {
     var shortTitle: String {
         switch self {
-        case .monday: return "Пн"
-        case .tuesday: return "Вт"
-        case .wednesday: return "Ср"
-        case .thursday: return "Чт"
-        case .friday: return "Пт"
-        case .saturday: return "Сб"
-        case .sunday: return "Вс"
+        case .monday: return NSLocalizedString("weekday_mon_short", comment: "")
+        case .tuesday: return NSLocalizedString("weekday_tue_short", comment: "")
+        case .wednesday: return NSLocalizedString("weekday_wed_short", comment: "")
+        case .thursday: return NSLocalizedString("weekday_thu_short", comment: "")
+        case .friday: return NSLocalizedString("weekday_fri_short", comment: "")
+        case .saturday: return NSLocalizedString("weekday_sat_short", comment: "")
+        case .sunday: return NSLocalizedString("weekday_sun_short", comment: "")
         }
     }
 }
