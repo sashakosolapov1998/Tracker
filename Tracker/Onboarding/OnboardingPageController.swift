@@ -68,10 +68,10 @@ final class OnboardingPageController: UIPageViewController {
     // MARK: - Layout
     private func setupPageControlConstraints() {
         pageControl.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            pageControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -32),
-            pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        ])
+    NSLayoutConstraint.activate([
+        pageControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -120),
+        pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+    ])
     }
 }
 
