@@ -234,6 +234,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TrackerCell", for: indexPath) as? TrackerCollectionViewCell else {
             return UICollectionViewCell()
         }
+        cell.delegate = self
         
         cell.emojiLabel.text = tracker.emoji
         cell.titleLabel.text = tracker.title
@@ -336,5 +337,38 @@ extension TrackersViewController {
         updateVisibleCategories()
         collectionView.reloadData()
         updatePlaceholderVisibility()
+    }
+}
+
+extension TrackersViewController: TrackerCollectionViewCellDelegate {
+    func trackersCollectionViewCellDidRequestEdit(_ cell: TrackerCollectionViewCell) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
+        print("Редактировать трекер: \(tracker.title)")
+        // TODO: Открыть экран редактирования
+    }
+
+    func trackersCollectionViewCellDidRequestDelete(_ cell: TrackerCollectionViewCell) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
+
+        let alert = UIAlertController(
+            title: nil,
+            message: NSLocalizedString("delete_message", comment: ""),
+            preferredStyle: .actionSheet
+        )
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("delete", comment: ""), style: .destructive) { _ in
+            do {
+                try self.trackerCategoryStore.deleteTracker(tracker)
+                self.updateVisibleCategories()
+                self.collectionView.reloadData()
+            } catch {
+                print("Ошибка при удалении трекера: \(error)")
+            }
+        })
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("cancel", comment: ""), style: .cancel))
+        present(alert, animated: true)
     }
 }
