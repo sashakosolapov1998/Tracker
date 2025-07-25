@@ -84,7 +84,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
     let daysLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .black
+        label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
