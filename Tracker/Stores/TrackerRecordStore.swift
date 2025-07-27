@@ -20,6 +20,18 @@ final class TrackerRecordStore {
     }
     
     // MARK: - Public Methods
+
+    func hasRecord(for trackerId: UUID, on date: Date) throws -> Bool {
+        let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
+        request.predicate = NSPredicate(
+            format: "tracker.id == %@ AND date == %@",
+            trackerId as CVarArg,
+            date as CVarArg
+        )
+
+        let count = try context.count(for: request)
+        return count > 0
+    }
     func addRecord(_ record: TrackerRecord) throws {
         let recordEntity = TrackerRecordCoreData(context: context)
         recordEntity.date = record.date

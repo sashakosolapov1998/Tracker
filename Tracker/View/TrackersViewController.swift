@@ -11,14 +11,14 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
     
     // MARK: - Properties
     var categories: [TrackerCategory] = []
-    var completedTrackers: [TrackerRecord] = []
     var selectedDate: Date = Date()
     var selectedCategory: TrackerCategory?
     var selectedCategoryCoreData: TrackerCategoryCoreData?
     private let searchController = UISearchController(searchResultsController: nil)
     private var searchText: String = ""
     
-private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager.shared.context)
+    private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager.shared.context)
+    private let trackerRecordStore = TrackerRecordStore(context: CoreDataManager.shared.context)
     private var visibleCategories: [TrackerCategory] = []
     private var recentlyCreatedTrackers: [Tracker] = []
     private var currentFilter: TrackerFilter = .default
@@ -218,16 +218,15 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         visibleCategories = allCategories.map { category in
             let filteredTrackers = category.trackers.filter { tracker in
                 let matchesDay = tracker.schedule.contains(weekday)
-
                 // Apply filter logic
                 let matchesFilter: Bool
                 switch currentFilter {
                 case .all, .today:
                     matchesFilter = matchesDay
                 case .completed:
-                    matchesFilter = matchesDay && completedTrackers.contains(where: { $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) })
+                    matchesFilter = matchesDay && ((try? trackerRecordStore.hasRecord(for: tracker.id, on: selectedDate)) ?? false)
                 case .notCompleted:
-                    matchesFilter = matchesDay && !completedTrackers.contains(where: { $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) })
+                    matchesFilter = matchesDay && !((try? trackerRecordStore.hasRecord(for: tracker.id, on: selectedDate)) ?? false)
                 }
                 // Apply search text filter if necessary
                 if !searchText.isEmpty {
@@ -301,13 +300,13 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         cell.plusButton.backgroundColor = tracker.color
         
         let record = TrackerRecord(trackerId: tracker.id, date: selectedDate)
-        let isCompleted = completedTrackers.contains(where: { $0 == record })
-        
-        let daysCount = completedTrackers.filter { $0.trackerId == tracker.id }.count
+        let isCompleted = (try? trackerRecordStore.hasRecord(for: tracker.id, on: selectedDate)) ?? false
+
+        let daysCount = (try? trackerRecordStore.fetchRecords().filter { $0.trackerId == tracker.id }.count) ?? 0
         cell.daysLabel.text = String.localizedStringWithFormat(NSLocalizedString("days_count", comment: ""), daysCount)
         let imageResource: ImageResource = isCompleted ? .done : .plus
         cell.plusButton.setImage(UIImage(resource: imageResource), for: .normal)
-        
+
         cell.plusButtonAction = { [weak self] in
             guard let self else { return }
             guard self.selectedDate <= Date() else {
@@ -323,15 +322,19 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
                 return
             }
 
-            if isCompleted {
-                completedTrackers.removeAll(where: { $0 == record })
-            } else {
-                completedTrackers.append(record)
+            do {
+                if try trackerRecordStore.hasRecord(for: tracker.id, on: selectedDate) {
+                    try trackerRecordStore.deleteRecord(trackerId: tracker.id, date: selectedDate)
+                } else {
+                    try trackerRecordStore.addRecord(record)
+                }
+            } catch {
+                print("Ошибка при обновлении записи трекера: \(error)")
             }
             AnalyticsService.report(event: "click", screen: "Main", item: "track")
             collectionView.reloadData()
         }
-        
+
         return cell
     }
 }
@@ -416,7 +419,7 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
         print("Редактировать трекер: \(tracker.title)")
-        let completedCount = completedTrackers.filter { $0.trackerId == tracker.id }.count
+        let completedCount = (try? trackerRecordStore.fetchRecords().filter { $0.trackerId == tracker.id }.count) ?? 0
         let editVC = NewHabitViewController(tracker: tracker, completedDaysCount: completedCount)
         editVC.delegate = self
         let navVC = UINavigationController(rootViewController: editVC)

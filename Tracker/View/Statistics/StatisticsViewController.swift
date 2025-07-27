@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AppMetricaCore
 
 struct StatItem {
     let number: Int
@@ -21,6 +22,7 @@ final class StatisticsViewController: UIViewController {
         StatItem(number: 0, title: "Среднее значение")
     ]
     private let emptyView = UIView()
+    private let statsService = StatsService()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,8 +30,30 @@ final class StatisticsViewController: UIViewController {
         setupNavigationBar()
         setupTableView()
         setupEmptyView()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateStats),
+            name: NSNotification.Name("StatsDidChange"),
+            object: nil
+        )
         tableView.isHidden = !hasStats()
         emptyView.isHidden = hasStats()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        updateStats()
+    }
+
+    @objc private func updateStats() {
+        items = statsService.calculateStats()
+        tableView.reloadData()
+        tableView.isHidden = !hasStats()
+        emptyView.isHidden = hasStats()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("StatsDidChange"), object: nil)
     }
 
     private func setupNavigationBar() {
