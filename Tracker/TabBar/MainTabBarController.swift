@@ -40,12 +40,13 @@ final class MainTabBarController: UITabBarController {
         )
         
         let statisticsVC = StatisticsViewController()
-        statisticsVC.tabBarItem = UITabBarItem(
+        let navStatisticsVC = UINavigationController(rootViewController: statisticsVC)
+        navStatisticsVC.tabBarItem = UITabBarItem(
             title: NSLocalizedString("tabbar_statistics_title", comment: ""),
             image: UIImage(named: "stats"),
             selectedImage: nil
         )
         
-        viewControllers = [navTrackers, statisticsVC]
+        viewControllers = [navTrackers, navStatisticsVC]
     }
 }
