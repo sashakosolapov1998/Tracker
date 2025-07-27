@@ -5,6 +5,7 @@
 //  Created by Александр Косолапов on 25/5/25.
 //
 import UIKit
+import AppMetricaCore
 
 final class TrackersViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, TrackerStoreDelegate {
     
@@ -109,6 +110,16 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         ])
         collectionView.alwaysBounceVertical = true
     }
+
+    override func viewDidAppear(_ animated: Bool) {
+        AnalyticsService.report(event: "open", screen: "Main")
+        super.viewDidAppear(animated)
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        AnalyticsService.report(event: "close", screen: "Main")
+        super.viewDidDisappear(animated)
+    }
     
     // MARK: - Setup UI
     private func setupNavigationBar() {
@@ -158,6 +169,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
     
     // MARK: - Actions
     @objc private func didTapAdd() {
+        AnalyticsService.report(event: "click", screen: "Main", item: "add_track")
         let trackerTypeVC = TrackerTypeSelectionViewController()
         trackerTypeVC.delegate = self
         let nav = UINavigationController(rootViewController: trackerTypeVC)
@@ -207,13 +219,22 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
             let filteredTrackers = category.trackers.filter { tracker in
                 let matchesDay = tracker.schedule.contains(weekday)
 
+                // Apply filter logic
+                let matchesFilter: Bool
                 switch currentFilter {
                 case .all, .today:
-                    return matchesDay
+                    matchesFilter = matchesDay
                 case .completed:
-                    return matchesDay && completedTrackers.contains(where: { $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) })
+                    matchesFilter = matchesDay && completedTrackers.contains(where: { $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) })
                 case .notCompleted:
-                    return matchesDay && !completedTrackers.contains(where: { $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) })
+                    matchesFilter = matchesDay && !completedTrackers.contains(where: { $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate) })
+                }
+                // Apply search text filter if necessary
+                if !searchText.isEmpty {
+                    let trackerTitleLowercased = tracker.title.lowercased()
+                    return matchesFilter && trackerTitleLowercased.contains(searchText)
+                } else {
+                    return matchesFilter
                 }
             }
             return TrackerCategory(title: category.title, trackers: filteredTrackers, coreData: category.coreData)
@@ -223,6 +244,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
         filterButton.setTitleColor(isActive ? .red : .white, for: .normal)
     }
     @objc private func addFilterButtontapped() {
+        AnalyticsService.report(event: "click", screen: "Main", item: "filter")
         let filterVC = FilterViewController(selectedFilter: currentFilter)
         filterVC.delegate = self
         present(filterVC, animated: true)
@@ -306,6 +328,7 @@ private let trackerCategoryStore = TrackerCategoryStore(context: CoreDataManager
             } else {
                 completedTrackers.append(record)
             }
+            AnalyticsService.report(event: "click", screen: "Main", item: "track")
             collectionView.reloadData()
         }
         
@@ -397,6 +420,7 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
         let editVC = NewHabitViewController(tracker: tracker, completedDaysCount: completedCount)
         editVC.delegate = self
         let navVC = UINavigationController(rootViewController: editVC)
+        AnalyticsService.report(event: "click", screen: "Main", item: "edit")
         present(navVC, animated: true)
     }
 
@@ -411,6 +435,7 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
         )
 
         alert.addAction(UIAlertAction(title: NSLocalizedString("delete", comment: ""), style: .destructive) { _ in
+            AnalyticsService.report(event: "click", screen: "Main", item: "delete")
             do {
                 try self.trackerCategoryStore.deleteTracker(tracker)
                 self.updateVisibleCategories()

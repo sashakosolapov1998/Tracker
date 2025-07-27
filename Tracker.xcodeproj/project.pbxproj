@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D4EE05C2E36698E0021E6F2 /* YandexMobileMetrica in Frameworks */ = {isa = PBXBuildFile; productRef = 4D4EE05B2E36698E0021E6F2 /* YandexMobileMetrica */; };
+		4D4EE05E2E36698E0021E6F2 /* YandexMobileMetricaCrashes in Frameworks */ = {isa = PBXBuildFile; productRef = 4D4EE05D2E36698E0021E6F2 /* YandexMobileMetricaCrashes */; };
+		4D4EE0612E366A960021E6F2 /* AppMetricaCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4D4EE0602E366A960021E6F2 /* AppMetricaCore */; };
 		4D78F0702E33E06E00C5424A /* InlineSnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 4D78F06F2E33E06E00C5424A /* InlineSnapshotTesting */; };
 		4D78F0722E33E06E00C5424A /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 4D78F0712E33E06E00C5424A /* SnapshotTesting */; };
 		4D78F0742E33E06E00C5424A /* SnapshotTestingCustomDump in Frameworks */ = {isa = PBXBuildFile; productRef = 4D78F0732E33E06E00C5424A /* SnapshotTestingCustomDump */; };
@@ -58,6 +61,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D4EE0612E366A960021E6F2 /* AppMetricaCore in Frameworks */,
+				4D4EE05C2E36698E0021E6F2 /* YandexMobileMetrica in Frameworks */,
+				4D4EE05E2E36698E0021E6F2 /* YandexMobileMetricaCrashes in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +118,9 @@
 			);
 			name = Tracker;
 			packageProductDependencies = (
+				4D4EE05B2E36698E0021E6F2 /* YandexMobileMetrica */,
+				4D4EE05D2E36698E0021E6F2 /* YandexMobileMetricaCrashes */,
+				4D4EE0602E366A960021E6F2 /* AppMetricaCore */,
 			);
 			productName = Tracker;
 			productReference = 4D31D2E32DE33CE200247EE9 /* Tracker.app */;
@@ -174,6 +183,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4D78F06E2E33E06E00C5424A /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
+				4D4EE05A2E36698E0021E6F2 /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */,
+				4D4EE05F2E366A960021E6F2 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4D31D2E42DE33CE200247EE9 /* Products */;
@@ -481,6 +492,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		4D4EE05A2E36698E0021E6F2 /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yandexmobile/metrica-sdk-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
+		4D4EE05F2E366A960021E6F2 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/appmetrica/appmetrica-sdk-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.11.2;
+			};
+		};
 		4D78F06E2E33E06E00C5424A /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
@@ -492,6 +519,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4D4EE05B2E36698E0021E6F2 /* YandexMobileMetrica */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4D4EE05A2E36698E0021E6F2 /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */;
+			productName = YandexMobileMetrica;
+		};
+		4D4EE05D2E36698E0021E6F2 /* YandexMobileMetricaCrashes */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4D4EE05A2E36698E0021E6F2 /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */;
+			productName = YandexMobileMetricaCrashes;
+		};
+		4D4EE0602E366A960021E6F2 /* AppMetricaCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4D4EE05F2E366A960021E6F2 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaCore;
+		};
 		4D78F06F2E33E06E00C5424A /* InlineSnapshotTesting */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4D78F06E2E33E06E00C5424A /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
