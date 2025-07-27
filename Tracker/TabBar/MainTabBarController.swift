@@ -16,7 +16,7 @@ final class MainTabBarController: UITabBarController {
         setupAppearance()
         setupTabs()
     }
-   
+    
     // MARK: - Private Methods
     private func setupAppearance() {
         let appearance = UITabBarAppearance()

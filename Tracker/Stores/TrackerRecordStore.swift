@@ -20,7 +20,7 @@ final class TrackerRecordStore {
     }
     
     // MARK: - Public Methods
-
+    
     func hasRecord(for trackerId: UUID, on date: Date) throws -> Bool {
         let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
         request.predicate = NSPredicate(
@@ -28,7 +28,7 @@ final class TrackerRecordStore {
             trackerId as CVarArg,
             date as CVarArg
         )
-
+        
         let count = try context.count(for: request)
         return count > 0
     }

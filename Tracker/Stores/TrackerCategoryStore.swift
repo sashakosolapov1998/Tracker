@@ -69,11 +69,11 @@ extension TrackerCategoryStore {
     func deleteTracker(_ tracker: Tracker) throws {
         let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
-
+        
         guard let trackerEntity = try context.fetch(fetchRequest).first else {
             throw NSError(domain: "TrackerCategoryStore", code: 404, userInfo: [NSLocalizedDescriptionKey: "Tracker not found"])
         }
-
+        
         context.delete(trackerEntity)
         try context.save()
         delegate?.trackerCategoryStoreDidUpdate()

@@ -5,14 +5,12 @@
 //  Created by Александр Косолапов on 25/7/25.
 //
 
-
-
 enum TrackerFilter: CaseIterable {
     case all
     case today
     case completed
     case notCompleted
-
+    
     var title: String {
         switch self {
         case .all:
@@ -25,7 +23,7 @@ enum TrackerFilter: CaseIterable {
             return "Незавершённые"
         }
     }
-
+    
     var isCustomFilter: Bool {
         switch self {
         case .completed, .notCompleted:
@@ -34,7 +32,7 @@ enum TrackerFilter: CaseIterable {
             return false
         }
     }
-
+    
     static var `default`: TrackerFilter {
         return .all
     }

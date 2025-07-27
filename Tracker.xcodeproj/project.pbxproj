@@ -10,6 +10,7 @@
 		4D4EE05C2E36698E0021E6F2 /* YandexMobileMetrica in Frameworks */ = {isa = PBXBuildFile; productRef = 4D4EE05B2E36698E0021E6F2 /* YandexMobileMetrica */; };
 		4D4EE05E2E36698E0021E6F2 /* YandexMobileMetricaCrashes in Frameworks */ = {isa = PBXBuildFile; productRef = 4D4EE05D2E36698E0021E6F2 /* YandexMobileMetricaCrashes */; };
 		4D4EE0612E366A960021E6F2 /* AppMetricaCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4D4EE0602E366A960021E6F2 /* AppMetricaCore */; };
+		4D4EE0682E367C720021E6F2 /* AppMetricaCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4D4EE0672E367C720021E6F2 /* AppMetricaCore */; };
 		4D78F0702E33E06E00C5424A /* InlineSnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 4D78F06F2E33E06E00C5424A /* InlineSnapshotTesting */; };
 		4D78F0722E33E06E00C5424A /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 4D78F0712E33E06E00C5424A /* SnapshotTesting */; };
 		4D78F0742E33E06E00C5424A /* SnapshotTestingCustomDump in Frameworks */ = {isa = PBXBuildFile; productRef = 4D78F0732E33E06E00C5424A /* SnapshotTestingCustomDump */; };
@@ -72,6 +73,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D78F0742E33E06E00C5424A /* SnapshotTestingCustomDump in Frameworks */,
+				4D4EE0682E367C720021E6F2 /* AppMetricaCore in Frameworks */,
 				4D78F0702E33E06E00C5424A /* InlineSnapshotTesting in Frameworks */,
 				4D78F0722E33E06E00C5424A /* SnapshotTesting in Frameworks */,
 			);
@@ -85,6 +87,7 @@
 			children = (
 				4D31D2E52DE33CE200247EE9 /* Tracker */,
 				4D78F0642E33E03700C5424A /* TrackerUITests */,
+				4D4EE0662E367C720021E6F2 /* Frameworks */,
 				4D31D2E42DE33CE200247EE9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -96,6 +99,13 @@
 				4D78F0632E33E03700C5424A /* TrackerUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		4D4EE0662E367C720021E6F2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -147,6 +157,7 @@
 				4D78F06F2E33E06E00C5424A /* InlineSnapshotTesting */,
 				4D78F0712E33E06E00C5424A /* SnapshotTesting */,
 				4D78F0732E33E06E00C5424A /* SnapshotTestingCustomDump */,
+				4D4EE0672E367C720021E6F2 /* AppMetricaCore */,
 			);
 			productName = TrackerUITests;
 			productReference = 4D78F0632E33E03700C5424A /* TrackerUITests.xctest */;
@@ -530,6 +541,11 @@
 			productName = YandexMobileMetricaCrashes;
 		};
 		4D4EE0602E366A960021E6F2 /* AppMetricaCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4D4EE05F2E366A960021E6F2 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaCore;
+		};
+		4D4EE0672E367C720021E6F2 /* AppMetricaCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4D4EE05F2E366A960021E6F2 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
 			productName = AppMetricaCore;

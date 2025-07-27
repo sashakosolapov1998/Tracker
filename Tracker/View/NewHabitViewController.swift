@@ -14,9 +14,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
     private let rowHeight: CGFloat = 75
     private let tableHeight: CGFloat = 150
     private let buttonHeight: CGFloat = 60
-    // private let stackBottomPadding: CGFloat = 160
     private let stackSpacing: CGFloat = 24
-    
     private let trackerStore = TrackerStore.shared
     
     // MARK: - Properties
@@ -27,20 +25,20 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         self.completedDaysCount = completedDaysCount
         super.init(nibName: nil, bundle: nil)
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     @objc private func cancelButtonTapped() {
         dismiss(animated: true, completion: nil)
     }
     @objc private func saveButtonTapped() {
         guard let title = trackerNameTextField.text, !title.isEmpty, !selectedDays.isEmpty else { return }
-
+        
         guard let colorIndex = selectedColorIndex?.item,
               let emojiIndex = selectedEmojiIndex?.item else { return }
-
+        
         if let oldTracker = existingTracker {
             let updatedTracker = Tracker(
                 id: oldTracker.id,
@@ -49,7 +47,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
                 emoji: TrackerConstants.emojis[emojiIndex],
                 schedule: selectedDays
             )
-
+            
             do {
                 if let selectedCategory = selectedCategory {
                     try trackerStore.updateTracker(updatedTracker, category: selectedCategory)
@@ -59,12 +57,12 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
             } catch {
                 print("Ошибка при редактировании трекера: \(error)")
             }
-
+            
             delegate?.trackerWasEdited(updatedTracker)
             dismiss(animated: true, completion: nil)
             return
         }
-
+        
         let newTracker = Tracker(
             id: UUID(),
             title: title,
@@ -72,7 +70,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
             emoji: TrackerConstants.emojis[emojiIndex],
             schedule: selectedDays
         )
-
+        
         do {
             if let selectedCategory = selectedCategory {
                 try trackerStore.addTracker(newTracker, category: selectedCategory)
@@ -83,7 +81,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         } catch {
             print("Ошибка при сохранении трекера: \(error)")
         }
-
+        
         delegate?.trackerWasCreated(newTracker)
         dismiss(animated: true, completion: nil)
     }
@@ -108,7 +106,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         layout.minimumInteritemSpacing = 12
         let side = (UIScreen.main.bounds.width - 16*2 - 12*5) / 6
         layout.itemSize = CGSize(width: side, height: side)
-
+        
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .clear
@@ -134,7 +132,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         layout.minimumInteritemSpacing = 12
         let side = (UIScreen.main.bounds.width - 16*2 - 12*5) / 6
         layout.itemSize = CGSize(width: side, height: side)
-
+        
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .clear
@@ -228,20 +226,20 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         setupButtons()
         trackerNameTextField.delegate = self
         trackerNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-
+        
         if let tracker = existingTracker {
             title = NSLocalizedString("edit_tracker_title", comment: "")
             trackerNameTextField.text = tracker.title
             selectedDays = tracker.schedule ?? []
-
+            
             if let emojiIndex = TrackerConstants.emojis.firstIndex(of: tracker.emoji) {
                 selectedEmojiIndex = IndexPath(item: emojiIndex, section: 0)
             }
-
+            
             if let colorIndex = TrackerConstants.colors.firstIndex(of: tracker.color) {
                 selectedColorIndex = IndexPath(item: colorIndex, section: 0)
             }
-
+            
             saveButton.setTitle(NSLocalizedString("save_button_title", comment: ""), for: .normal)
         }
     }
@@ -265,7 +263,7 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        
+            
             contentStackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 24),
             contentStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
             contentStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16),
@@ -306,15 +304,15 @@ final class NewHabitViewController: UIViewController, ScheduleViewControllerDele
         tableView.reloadData()
         updateSaveButtonState()
     }
-
+    
     @objc private func textFieldDidChange() {
         updateSaveButtonState()
     }
-
+    
     private func updateSaveButtonState() {
         let isTitleEmpty = trackerNameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
         let isDaysEmpty = selectedDays.isEmpty
-
+        
         let shouldEnable = !isTitleEmpty && !isDaysEmpty
         saveButton.isEnabled = shouldEnable
         saveButton.backgroundColor = shouldEnable ? .ypBlack : .ypGray
@@ -335,10 +333,10 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! OptionCell
         let title = indexPath.row == 0
-            ? NSLocalizedString("category_option", comment: "")
-            : NSLocalizedString("schedule_option", comment: "")
+        ? NSLocalizedString("category_option", comment: "")
+        : NSLocalizedString("schedule_option", comment: "")
         var subtitle: String?
-
+        
         if indexPath.row == 0 {
             subtitle = selectedCategory?.title
         } else {
@@ -346,7 +344,7 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
             let weekdayShorts = sortedDays.map { $0.shortTitle }
             subtitle = weekdayShorts.isEmpty ? nil : weekdayShorts.joined(separator: ", ")
         }
-
+        
         cell.configure(title: title, subtitle: subtitle)
         cell.showDivider(indexPath.row == 0)
         return cell
@@ -360,7 +358,7 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 0.01
     }
-
+    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return UIView()
     }
@@ -377,18 +375,19 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
             let categoryStore = CoreDataManager.shared.persistentContainer.viewContext
             let viewModel = CategoriesViewModel(categoryStore: TrackerCategoryStore(context: categoryStore))
             let categoriesVC = CategoriesViewController(viewModel: viewModel)
-
+            
             categoriesVC.onCategorySelected = { [weak self] selectedCategory in
                 self?.selectedCategory = selectedCategory
                 self?.tableView.reloadData()
                 self?.dismiss(animated: true)
             }
-
+            
             let navVC = UINavigationController(rootViewController: categoriesVC)
             self.present(navVC, animated: true)
         }
     }
 }
+// MARK: - OptionCell
 final class OptionCell: UITableViewCell {
     private let subtitleLabel: UILabel = {
         let label = UILabel()
@@ -404,11 +403,11 @@ final class OptionCell: UITableViewCell {
         view.backgroundColor = UIColor(named: "YP Separator") ?? .lightGray
         return view
     }()
-
+    
     // MARK: - Constraints for textLabel
     private var textTopConstraint: NSLayoutConstraint?
     private var textCenterYConstraint: NSLayoutConstraint?
-
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupAppearance()
@@ -417,7 +416,7 @@ final class OptionCell: UITableViewCell {
         super.init(coder: coder)
         setupAppearance()
     }
-
+    
     private func setupAppearance() {
         backgroundColor = .clear
         contentView.backgroundColor = .clear
@@ -428,12 +427,10 @@ final class OptionCell: UITableViewCell {
         textLabel?.textAlignment = .left
         textLabel?.numberOfLines = 1
         textLabel?.baselineAdjustment = .alignCenters
-
-        // Add to contentView
+        
         contentView.addSubview(divider)
         contentView.addSubview(subtitleLabel)
-
-        // textLabel constraints
+        
         if let textLabel = textLabel {
             textLabel.translatesAutoresizingMaskIntoConstraints = false
             textTopConstraint = textLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 14)
@@ -444,7 +441,7 @@ final class OptionCell: UITableViewCell {
                 textTopConstraint!
             ])
         }
-
+        
         NSLayoutConstraint.activate([
             divider.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             divider.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
@@ -461,16 +458,16 @@ final class OptionCell: UITableViewCell {
     func showDivider(_ show: Bool) {
         divider.isHidden = !show
     }
-
+    
     func configure(title: String, subtitle: String?) {
         textLabel?.text = title
         subtitleLabel.text = subtitle
         subtitleLabel.isHidden = subtitle == nil
-        // Manage textLabel vertical alignment constraints
+        
         textTopConstraint?.isActive = subtitle != nil
         textCenterYConstraint?.isActive = subtitle == nil
     }
-
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         textLabel?.text = nil
@@ -491,7 +488,6 @@ extension NewHabitViewController: UITextFieldDelegate {
     }
 }
 
-
 // MARK: - Emoji CollectionView
 extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -500,7 +496,7 @@ extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDe
         }
         return TrackerConstants.emojis.count
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == colorCollectionView {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ColorCell.reuseIdentifier, for: indexPath) as? ColorCell else {
@@ -519,7 +515,7 @@ extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDe
         cell.configure(with: emoji, isSelected: isSelected)
         return cell
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == colorCollectionView {
             if let previousIndex = selectedColorIndex {

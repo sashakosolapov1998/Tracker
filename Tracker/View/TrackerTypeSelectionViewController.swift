@@ -28,7 +28,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
         button.addTarget(self, action: #selector(didTapIrregular), for: .touchUpInside)
         return button
     }()
-
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,7 +36,7 @@ final class TrackerTypeSelectionViewController: UIViewController {
         setupLayout()
         navigationItem.title = NSLocalizedString("create_tracker", comment: "")
     }
-
+    
     // MARK: - Layout
     private func setupLayout() {
         let buttonStack = UIStackView(arrangedSubviews: [habitButton, irregularButton])
@@ -45,9 +45,9 @@ final class TrackerTypeSelectionViewController: UIViewController {
         buttonStack.alignment = .fill
         buttonStack.distribution = .fillEqually
         buttonStack.translatesAutoresizingMaskIntoConstraints = false
-
+        
         view.addSubview(buttonStack)
-
+        
         NSLayoutConstraint.activate([
             buttonStack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             buttonStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -55,20 +55,20 @@ final class TrackerTypeSelectionViewController: UIViewController {
             habitButton.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
-
+    
     private func presentInNavigation(_ viewController: UIViewController) {
         let navVC = UINavigationController(rootViewController: viewController)
         navVC.modalPresentationStyle = .automatic
         present(navVC, animated: true)
     }
-
+    
     // MARK: - Actions
     @objc private func didTapHabit() {
         let newHabitVC = NewHabitViewController()
         newHabitVC.delegate = delegate
         presentInNavigation(newHabitVC)
     }
-
+    
     @objc private func didTapIrregular() {
         let newIrregularVC = NewIrregularViewController()
         presentInNavigation(newIrregularVC)

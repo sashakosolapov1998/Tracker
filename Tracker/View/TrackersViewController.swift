@@ -64,7 +64,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         print("📊 TrackersViewController открыт") // убрать
         // Удалим все трекеры при запуске (только для теста)
         // try? trackerCategoryStore.deleteAllTrackers()
-            
+        
         view.backgroundColor = .ypWhite
         view.addSubview(collectionView)
         collectionView.delegate = self
@@ -98,10 +98,10 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         setupSearchController()
         setupNavigationBar()
         setupEmptyPlaceholder()
-
+        
         view.addSubview(filterButton)
         filterButton.addTarget(self, action: #selector(addFilterButtontapped), for: .touchUpInside)
-
+        
         NSLayoutConstraint.activate([
             filterButton.heightAnchor.constraint(equalToConstant: 50),
             filterButton.widthAnchor.constraint(equalToConstant: 115),
@@ -110,12 +110,12 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         ])
         collectionView.alwaysBounceVertical = true
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         AnalyticsService.report(event: "open", screen: "Main")
         super.viewDidAppear(animated)
     }
-
+    
     override func viewDidDisappear(_ animated: Bool) {
         AnalyticsService.report(event: "close", screen: "Main")
         super.viewDidDisappear(animated)
@@ -128,12 +128,12 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .ypWhite
         appearance.shadowColor = .clear
-
+        
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
         title = NSLocalizedString("trackers_title", comment: "")
-
+        
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.navigationBar.barTintColor = .ypWhite
         navigationController?.navigationBar.isTranslucent = false
@@ -209,12 +209,12 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         let calendarWeekday = calendar.component(.weekday, from: selectedDate)
         let mappedRawValue = calendarWeekday == 1 ? 7 : calendarWeekday - 1
         let weekday = Tracker.Weekday(rawValue: mappedRawValue) ?? .monday
-
+        
         guard let allCategories = try? trackerCategoryStore.fetchCategories() else {
             visibleCategories = []
             return
         }
-
+        
         visibleCategories = allCategories.map { category in
             let filteredTrackers = category.trackers.filter { tracker in
                 let matchesDay = tracker.schedule.contains(weekday)
@@ -301,27 +301,27 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         
         let record = TrackerRecord(trackerId: tracker.id, date: selectedDate)
         let isCompleted = (try? trackerRecordStore.hasRecord(for: tracker.id, on: selectedDate)) ?? false
-
+        
         let daysCount = (try? trackerRecordStore.fetchRecords().filter { $0.trackerId == tracker.id }.count) ?? 0
         cell.daysLabel.text = String.localizedStringWithFormat(NSLocalizedString("days_count", comment: ""), daysCount)
         let imageResource: ImageResource = isCompleted ? .done : .plus
         cell.plusButton.setImage(UIImage(resource: imageResource), for: .normal)
-
+        
         cell.plusButtonAction = { [weak self] in
             guard let self else { return }
             guard self.selectedDate <= Date() else {
                 return
             }
-
+            
             let calendar = Calendar.current
             let calendarWeekday = calendar.component(.weekday, from: self.selectedDate)
             let mappedRawValue = calendarWeekday == 1 ? 7 : calendarWeekday - 1
             let weekday = Tracker.Weekday(rawValue: mappedRawValue)!
-
+            
             guard tracker.schedule.contains(weekday) else {
                 return
             }
-
+            
             do {
                 if try trackerRecordStore.hasRecord(for: tracker.id, on: selectedDate) {
                     try trackerRecordStore.deleteRecord(trackerId: tracker.id, date: selectedDate)
@@ -334,7 +334,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
             AnalyticsService.report(event: "click", screen: "Main", item: "track")
             collectionView.reloadData()
         }
-
+        
         return cell
     }
 }
@@ -386,7 +386,7 @@ extension TrackersViewController: TrackerCreationDelegate {
         collectionView.reloadData()
         updatePlaceholderVisibility()
     }
-
+    
     func trackerWasEdited(_ tracker: Tracker) {
         do {
             categories = try trackerCategoryStore.fetchCategories()
@@ -426,17 +426,17 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
         AnalyticsService.report(event: "click", screen: "Main", item: "edit")
         present(navVC, animated: true)
     }
-
+    
     func trackersCollectionViewCellDidRequestDelete(_ cell: TrackerCollectionViewCell) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
-
+        
         let alert = UIAlertController(
             title: nil,
             message: NSLocalizedString("delete_message", comment: ""),
             preferredStyle: .actionSheet
         )
-
+        
         alert.addAction(UIAlertAction(title: NSLocalizedString("delete", comment: ""), style: .destructive) { _ in
             AnalyticsService.report(event: "click", screen: "Main", item: "delete")
             do {
@@ -447,7 +447,7 @@ extension TrackersViewController: TrackerCollectionViewCellDelegate {
                 print("Ошибка при удалении трекера: \(error)")
             }
         })
-
+        
         alert.addAction(UIAlertAction(title: NSLocalizedString("cancel", comment: ""), style: .cancel))
         present(alert, animated: true)
     }
