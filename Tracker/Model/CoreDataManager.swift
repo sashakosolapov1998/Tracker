@@ -8,9 +8,9 @@ import CoreData
 
 final class CoreDataManager {
     static let shared = CoreDataManager()
-
+    
     private init() {}
-
+    
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "TrackerDataModel") // Имя .xcdatamodeld
         container.loadPersistentStores { _, error in
@@ -20,7 +20,7 @@ final class CoreDataManager {
         }
         return container
     }()
-
+    
     var context: NSManagedObjectContext {
         persistentContainer.viewContext
     }
