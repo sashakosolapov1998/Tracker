@@ -23,10 +23,17 @@ final class TrackerRecordStore {
     
     func hasRecord(for trackerId: UUID, on date: Date) throws -> Bool {
         let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            return false
+        }
+
         request.predicate = NSPredicate(
-            format: "tracker.id == %@ AND date == %@",
+            format: "tracker.id == %@ AND date >= %@ AND date < %@",
             trackerId as CVarArg,
-            date as CVarArg
+            startOfDay as CVarArg,
+            endOfDay as CVarArg
         )
         
         let count = try context.count(for: request)
