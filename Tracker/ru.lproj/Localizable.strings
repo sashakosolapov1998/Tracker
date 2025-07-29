@@ -1,0 +1,59 @@
+
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Александр Косолапов on 23/7/25.
+  
+*/
+
+"trackers_title" = "Трекеры";
+"empty_placeholder_text" = "Что будем отслеживать?";
+"search_placeholder" = "Поиск";
+"days_count" = "%#@days@";
+"create_tracker" = "Создание трекера";
+"habit" = "Привычка";
+"irregular_event" = "Нерегулярное событие";
+"schedule_title" = "Расписание";
+"done_button_title" = "Готово";
+"new_habit_title" = "Новая привычка";
+"emoji_title" = "Emoji";
+"color_title" = "Цвет";
+"cancel_button_title" = "Отменить";
+"create_button_title" = "Создать";
+"tracker_name_placeholder" = "Введите название трекера";
+"category_option" = "Категория";
+"schedule_option" = "Расписание";
+"category_title" = "Категория";
+"add_category_button" = "Добавить категорию";
+"categories_placeholder" = "Привычки и события можно объединить по смыслу";
+"new_category_title" = "Новая категория";
+"category_name_title" = "Название категории";
+"category_name_placeholder" = "Введите название категории";
+"done_button_title" = "Готово";
+"tabbar_trackers_title" = "Трекеры";
+"tabbar_statistics_title" = "Статистика";
+"weekday_monday" = "Понедельник";
+"weekday_tuesday" = "Вторник";
+"weekday_wednesday" = "Среда";
+"weekday_thursday" = "Четверг";
+"weekday_friday" = "Пятница";
+"weekday_saturday" = "Суббота";
+"weekday_sunday" = "Воскресенье";
+"weekday_mon_short" = "Пн";
+"weekday_tue_short" = "Вт";
+"weekday_wed_short" = "Ср";
+"weekday_thu_short" = "Чт";
+"weekday_fri_short" = "Пт";
+"weekday_sat_short" = "Сб";
+"weekday_sun_short" = "Вс";
+"edit" = "Редактировать";
+"delete" = "Удалить";
+"cancel" = "Отменить";
+//"delete_title" = "Уверены что хотите удалить текер?";
+"delete_message" = "Уверены что хотите удалить текер?";
+
+"cancel_button_title" = "Отменить";
+"create_button_title" = "Сохранить";
+"filters_button_title" = "Фильтры";
+/* Плюрализация для слова "день" */

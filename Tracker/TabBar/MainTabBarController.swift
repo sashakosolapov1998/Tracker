@@ -16,7 +16,7 @@ final class MainTabBarController: UITabBarController {
         setupAppearance()
         setupTabs()
     }
-   
+    
     // MARK: - Private Methods
     private func setupAppearance() {
         let appearance = UITabBarAppearance()
@@ -34,18 +34,19 @@ final class MainTabBarController: UITabBarController {
         let trackersVC = TrackersViewController()
         let navTrackers = UINavigationController(rootViewController: trackersVC)
         navTrackers.tabBarItem = UITabBarItem(
-            title: "Трекеры",
+            title: NSLocalizedString("tabbar_trackers_title", comment: ""),
             image: UIImage(named: "trackers"),
             selectedImage: nil
         )
         
         let statisticsVC = StatisticsViewController()
-        statisticsVC.tabBarItem = UITabBarItem(
-            title: "Статистика",
+        let navStatisticsVC = UINavigationController(rootViewController: statisticsVC)
+        navStatisticsVC.tabBarItem = UITabBarItem(
+            title: NSLocalizedString("tabbar_statistics_title", comment: ""),
             image: UIImage(named: "stats"),
             selectedImage: nil
         )
         
-        viewControllers = [navTrackers, statisticsVC]
+        viewControllers = [navTrackers, navStatisticsVC]
     }
 }

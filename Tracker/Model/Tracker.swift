@@ -26,13 +26,13 @@ struct Tracker: Equatable {
         
         var localizedName: String {
             switch self {
-            case .monday: return "Понедельник"
-            case .tuesday: return "Вторник"
-            case .wednesday: return "Среда"
-            case .thursday: return "Четверг"
-            case .friday: return "Пятница"
-            case .saturday: return "Суббота"
-            case .sunday: return "Воскресенье"
+            case .monday: return NSLocalizedString("weekday_monday", comment: "")
+            case .tuesday: return NSLocalizedString("weekday_tuesday", comment: "")
+            case .wednesday: return NSLocalizedString("weekday_wednesday", comment: "")
+            case .thursday: return NSLocalizedString("weekday_thursday", comment: "")
+            case .friday: return NSLocalizedString("weekday_friday", comment: "")
+            case .saturday: return NSLocalizedString("weekday_saturday", comment: "")
+            case .sunday: return NSLocalizedString("weekday_sunday", comment: "")
             }
         }
     }

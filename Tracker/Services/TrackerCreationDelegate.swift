@@ -7,4 +7,5 @@
 
 protocol TrackerCreationDelegate: AnyObject {
     func trackerWasCreated(_ tracker: Tracker)
+    func trackerWasEdited(_ tracker: Tracker)
 }

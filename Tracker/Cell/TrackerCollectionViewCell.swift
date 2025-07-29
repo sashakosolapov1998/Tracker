@@ -7,8 +7,16 @@
 import UIKit
 import Foundation
 
+protocol TrackerCollectionViewCellDelegate: AnyObject {
+    func trackersCollectionViewCellDidRequestEdit(_ cell: TrackerCollectionViewCell)
+    func trackersCollectionViewCellDidRequestDelete(_ cell: TrackerCollectionViewCell)
+}
+
 // MARK: - TrackerCollectionViewCell
-final class TrackerCollectionViewCell: UICollectionViewCell {
+final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuInteractionDelegate {
+    weak var delegate: TrackerCollectionViewCellDelegate?
+    
+    
     
     private enum Constants {
         static let cornerRadius: CGFloat = 16
@@ -17,6 +25,24 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         static let buttonSize: CGFloat = 34
         static let buttonCornerRadius: CGFloat = 17
         static let inset: CGFloat = 12
+    }
+    
+    
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
+                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            let edit = UIAction(title: NSLocalizedString("edit", comment: "")) { [weak self] _ in
+                guard let self = self else { return }
+                self.delegate?.trackersCollectionViewCellDidRequestEdit(self)
+            }
+
+            let delete = UIAction(title: NSLocalizedString("delete", comment: ""), attributes: .destructive) { [weak self] _ in
+                guard let self = self else { return }
+                self.delegate?.trackersCollectionViewCellDidRequestDelete(self)
+            }
+
+            return UIMenu(title: "", children: [edit, delete])
+        }
     }
     
     // MARK: - UI Elements
@@ -58,7 +84,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     let daysLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .black
+        label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -82,6 +108,11 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     // MARK: - Lifecycle
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
+        //новое
+        let interaction = UIContextMenuInteraction(delegate: self)
+        cardView.addInteraction(interaction)
+        //
         
         plusButton.addTarget(self, action: #selector(didTapPlus), for: .touchUpInside)
         

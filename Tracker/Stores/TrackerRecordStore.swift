@@ -20,6 +20,25 @@ final class TrackerRecordStore {
     }
     
     // MARK: - Public Methods
+    
+    func hasRecord(for trackerId: UUID, on date: Date) throws -> Bool {
+        let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            return false
+        }
+
+        request.predicate = NSPredicate(
+            format: "tracker.id == %@ AND date >= %@ AND date < %@",
+            trackerId as CVarArg,
+            startOfDay as CVarArg,
+            endOfDay as CVarArg
+        )
+        
+        let count = try context.count(for: request)
+        return count > 0
+    }
     func addRecord(_ record: TrackerRecord) throws {
         let recordEntity = TrackerRecordCoreData(context: context)
         recordEntity.date = record.date

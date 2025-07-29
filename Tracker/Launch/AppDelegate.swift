@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreData
+import AppMetricaCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,6 +19,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow()
         window?.rootViewController = MainTabBarController()
         window?.makeKeyAndVisible()
+        if let configuration = AppMetricaConfiguration(apiKey: "ef30f8c7-a0a4-4ac5-abe0-f05bad24e1d7") {
+            AppMetrica.activate(with: configuration)
+        }
         return true
     }
 

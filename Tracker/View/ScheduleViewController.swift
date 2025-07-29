@@ -35,7 +35,7 @@ final class ScheduleViewController: UIViewController {
     
     private let doneButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(NSLocalizedString("done_button_title", comment: ""), for: .normal)
         button.setTitleColor(.ypWhite, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypBlack
@@ -54,14 +54,14 @@ final class ScheduleViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
-
+        
     }
     
     //MARK: - Setup
     private func setupTitleNavBar() {
-        navigationItem.title = "Расписание"
+        navigationItem.title = NSLocalizedString("schedule_title", comment: "")
     }
-
+    
     private func setupConstraints() {
         // Add fixed height constraint for tableView (7 rows * 75pt)
         tableView.heightAnchor.constraint(equalToConstant: rowHeight * CGFloat(Tracker.Weekday.allCases.count)).isActive = true
@@ -128,7 +128,7 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 0.01
     }
-
+    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return UIView()
     }
