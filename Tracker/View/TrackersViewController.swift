@@ -65,7 +65,7 @@ final class TrackersViewController: UIViewController, UICollectionViewDelegate, 
         // Удалим все трекеры при запуске (только для теста)
         // try? trackerCategoryStore.deleteAllTrackers()
         
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .ypWhite // временно изменили фон для снапшот-теста
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
