@@ -19,10 +19,10 @@ final class StatsService {
             let average = 0
             
             return [
-                StatItem(number: bestStreak, title: "Лучший период"),
-                StatItem(number: perfectDays, title: "Идеальные дни"),
+                //StatItem(number: bestStreak, title: "Лучший период"),
+                //StatItem(number: perfectDays, title: "Идеальные дни"),
                 StatItem(number: totalCompleted, title: "Завершено"),
-                StatItem(number: average, title: "Среднее значение")
+                //StatItem(number: average, title: "Среднее значение")
             ]
         } catch {
             print("Ошибка получения статистики: \(error)")
