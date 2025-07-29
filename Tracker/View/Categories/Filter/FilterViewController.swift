@@ -110,6 +110,19 @@ final class FilterViewController: UIViewController {
         button.backgroundColor = .clear
         button.addTarget(self, action: #selector(filterButtonTapped(_:)), for: .touchUpInside)
         filterButtonMap[button] = filter
+        
+        if filter == selectedFilter {
+            let checkmark = UIImageView(image: UIImage(systemName: "checkmark"))
+            checkmark.tintColor = .ypBlue
+            checkmark.translatesAutoresizingMaskIntoConstraints = false
+            button.addSubview(checkmark)
+            
+            NSLayoutConstraint.activate([
+                checkmark.centerYAnchor.constraint(equalTo: button.centerYAnchor),
+                checkmark.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -16)
+            ])
+        }
+        
         return button
     }
     
@@ -119,4 +132,3 @@ final class FilterViewController: UIViewController {
         dismiss(animated: true)
     }
 }
-
